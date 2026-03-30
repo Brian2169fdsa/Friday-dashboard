@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage AI — Dashboard Requirements v2.0</title>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-light: #1a2d42;
+    --blue: #1a6eb5;
+    --blue-light: #e8f1fb;
+    --accent: #1d9e75;
+    --accent-light: #e1f5ee;
+    --amber: #b87a0f;
+    --amber-light: #fdf3dc;
+    --red: #a32d2d;
+    --red-light: #fdf0f0;
+    --purple: #534ab7;
+    --purple-light: #eeedfe;
+    --gray-50: #f8f9fa;
+    --gray-100: #f1f3f5;
+    --gray-200: #e9ecef;
+    --gray-300: #dee2e6;
+    --gray-400: #ced4da;
+    --gray-500: #adb5bd;
+    --gray-600: #6c757d;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
+    --sidebar-width: 270px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); font-size: 14px; line-height: 1.7; color: var(--gray-800); background: var(--gray-50); }
+  .site-header { background: var(--navy); color: white; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; position: fixed; top: 0; left: 0; right: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .site-header .brand { font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: white; display: flex; align-items: center; gap: 10px; }
+  .site-header .brand span { color: rgba(255,255,255,0.45); font-weight: 400; }
+  .site-header .controls { display: flex; gap: .5rem; align-items: center; }
+  .site-header .controls button { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.75); padding: 4px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+  .version-badge { background: var(--accent); color: white; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px; letter-spacing: .04em; }
+  .layout { display: flex; margin-top: 56px; min-height: calc(100vh - 56px); }
+  .sidebar { width: var(--sidebar-width); background: white; border-right: 1px solid var(--gray-200); position: fixed; top: 56px; bottom: 0; overflow-y: auto; padding: 1.25rem 0; }
+  .sidebar-section { margin-bottom: .25rem; }
+  .sidebar-section-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gray-500); padding: .75rem 1.25rem .25rem; }
+  .sidebar-part { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); padding: .6rem 1.25rem .2rem; margin-top: .25rem; background: var(--gray-50); border-top: 1px solid var(--gray-200); border-bottom: 1px solid var(--gray-200); }
+  .sidebar-link { display: block; padding: .3rem 1.25rem; font-size: 12px; color: var(--gray-600); text-decoration: none; border-left: 2px solid transparent; transition: all .1s; }
+  .sidebar-link:hover { color: var(--blue); background: var(--blue-light); border-left-color: var(--blue); }
+  .sidebar-link.active { color: var(--blue); background: var(--blue-light); border-left-color: var(--blue); font-weight: 500; }
+  .main { margin-left: var(--sidebar-width); flex: 1; padding: 2.5rem 3rem; max-width: 920px; }
+  .doc-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--gray-200); }
+  .doc-meta { display: flex; gap: .5rem; align-items: center; margin-bottom: .75rem; flex-wrap: wrap; }
+  .meta-tag { font-size: 11px; padding: 2px 8px; border-radius: 3px; font-weight: 500; }
+  .meta-tag.internal { background: var(--amber-light); color: var(--amber); }
+  .meta-tag.version { background: var(--blue-light); color: var(--blue); }
+  .meta-tag.date { background: var(--gray-100); color: var(--gray-600); }
+  .doc-header h1 { font-size: 26px; font-weight: 700; color: var(--navy); margin-bottom: .4rem; line-height: 1.2; }
+  .doc-header p { font-size: 14px; color: var(--gray-600); line-height: 1.6; }
+  .part-divider { background: var(--navy); color: white; padding: .75rem 1.25rem; border-radius: 6px; margin: 2.5rem 0 1.5rem; display: flex; align-items: center; gap: 1rem; scroll-margin-top: 80px; }
+  .part-divider .part-num { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; background: rgba(255,255,255,0.15); padding: 2px 8px; border-radius: 3px; }
+  .part-divider h2 { font-size: 16px; font-weight: 600; color: white; }
+  .part-divider .part-sub { font-size: 11px; color: rgba(255,255,255,0.5); margin-left: auto; }
+  .section { margin-bottom: 2.5rem; scroll-margin-top: 80px; }
+  .section-header { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1rem; padding-bottom: .6rem; border-bottom: 2px solid var(--navy); }
+  .section-header h2 { font-size: 18px; font-weight: 700; color: var(--navy); }
+  .section-header .os-ref { font-size: 10px; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .07em; background: var(--gray-100); padding: 2px 7px; border-radius: 3px; margin-left: auto; }
+  .subsection { margin-bottom: 1.75rem; }
+  .subsection h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: .6rem; }
+  .subsection h4 { font-size: 13px; font-weight: 600; color: var(--gray-700); margin-bottom: .4rem; margin-top: .9rem; }
+  p { margin-bottom: .7rem; color: var(--gray-700); }
+  .callout { border-left: 3px solid var(--blue); background: var(--blue-light); padding: .7rem 1rem; border-radius: 0 4px 4px 0; margin-bottom: 1rem; font-size: 13px; color: var(--gray-700); }
+  .callout.principle { border-left-color: var(--accent); background: var(--accent-light); }
+  .callout.warning { border-left-color: var(--amber); background: var(--amber-light); }
+  .callout.rule { border-left-color: var(--red); background: var(--red-light); }
+  .callout.stub { border-left-color: var(--purple); background: var(--purple-light); }
+  .callout strong { font-weight: 600; color: var(--gray-900); }
+  .table-wrap { overflow-x: auto; margin-bottom: 1.25rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: var(--navy); color: white; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; padding: .55rem .85rem; text-align: left; }
+  td { padding: .55rem .85rem; border-bottom: 1px solid var(--gray-200); vertical-align: top; color: var(--gray-700); }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: var(--gray-50); }
+  td strong { font-weight: 600; color: var(--gray-900); }
+  td.never { color: var(--red); font-weight: 600; }
+  td code { background: var(--gray-100); padding: 1px 5px; border-radius: 3px; font-size: 11px; font-family: monospace; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: .04em; }
+  .badge-p0 { background: var(--blue); color: white; }
+  .badge-p1 { background: var(--gray-300); color: var(--gray-700); }
+  .badge-new { background: var(--accent); color: white; }
+  .badge-mod { background: var(--amber); color: white; }
+  .badge-stub { background: var(--purple); color: white; }
+  .badge-active { background: var(--accent); color: white; }
+  .badge-placeholder { background: var(--purple-light); color: var(--purple); }
+  .badge-shared { background: var(--blue-light); color: var(--blue); }
+  .identity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin-bottom: 1.25rem; }
+  .identity-field { background: white; border: 1px solid var(--gray-200); border-radius: 6px; padding: .65rem .9rem; }
+  .identity-field .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--gray-500); margin-bottom: .2rem; }
+  .identity-field .value { font-size: 13px; font-weight: 500; color: var(--navy); }
+  .tab-card { border: 1px solid var(--gray-200); border-radius: 8px; margin-bottom: 1rem; overflow: hidden; }
+  .tab-card-header { padding: .7rem 1rem; display: flex; align-items: center; justify-content: space-between; }
+  .tab-card-header.active-tab { background: var(--navy); }
+  .tab-card-header.shared-tab { background: var(--blue); }
+  .tab-card-header.placeholder-tab { background: var(--navy-light); }
+  .tab-card-header.future-tab { background: var(--gray-700); }
+  .tab-card-header h3 { font-size: 14px; font-weight: 600; color: white; margin: 0; }
+  .tab-card-header .tab-meta { font-size: 11px; color: rgba(255,255,255,0.55); }
+  .tab-card-body { padding: 1rem; background: white; }
+  .component-block { border: 1px solid var(--gray-200); border-radius: 7px; margin-bottom: 1rem; overflow: hidden; }
+  .component-header { background: var(--navy-light); color: white; padding: .6rem 1rem; display: flex; align-items: center; gap: .75rem; }
+  .component-num { background: rgba(255,255,255,0.15); border-radius: 3px; padding: 1px 7px; font-size: 10px; font-weight: 700; }
+  .component-header h3 { font-size: 13px; font-weight: 600; color: white; margin: 0; }
+  .component-body { padding: 1rem; background: white; }
+  .loop-step { display: grid; grid-template-columns: 30px 1fr; gap: .65rem; margin-bottom: .9rem; align-items: start; }
+  .loop-step-num { width: 30px; height: 30px; background: var(--blue); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .loop-step-content { padding-top: 3px; }
+  .loop-step-content strong { display: block; font-weight: 600; color: var(--gray-900); margin-bottom: .15rem; }
+  .loop-step-content span { color: var(--gray-600); font-size: 13px; }
+  .principle-block { border: 1px solid var(--gray-200); border-radius: 6px; margin-bottom: .75rem; overflow: hidden; }
+  .principle-os { background: var(--navy); padding: .5rem .9rem; font-size: 12px; color: rgba(255,255,255,0.9); font-weight: 500; }
+  .principle-mai { background: var(--accent-light); padding: .5rem .9rem; font-size: 12px; color: var(--gray-700); }
+  .principle-mai strong { color: var(--accent); }
+  .nav-group { background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 6px; padding: .75rem 1rem; margin-bottom: .5rem; }
+  .nav-group-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--gray-500); margin-bottom: .5rem; }
+  .nav-item { display: flex; align-items: center; justify-content: space-between; padding: .25rem 0; font-size: 13px; color: var(--gray-700); }
+  .nav-item strong { color: var(--navy); }
+  .checklist { list-style: none; padding: 0; margin-bottom: 1rem; }
+  .checklist li { padding: .3rem 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; color: var(--gray-700); display: flex; align-items: flex-start; gap: .6rem; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: "□"; font-size: 14px; color: var(--blue); flex-shrink: 0; margin-top: 1px; }
+  .shared-banner { background: var(--blue-light); border: 1px solid var(--blue); border-radius: 6px; padding: .6rem 1rem; margin-bottom: 1rem; font-size: 13px; color: var(--blue); font-weight: 600; display: flex; align-items: center; gap: .5rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .7rem; color: var(--gray-700); }
+  li { margin-bottom: .2rem; }
+  ul li::marker { color: var(--blue); }
+  hr { border: none; border-top: 1px solid var(--gray-200); margin: 1.75rem 0; }
+  .doc-footer { margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-200); font-size: 12px; color: var(--gray-500); text-align: center; }
+  @media print { .sidebar, .site-header, .controls { display: none; } .main { margin-left: 0; padding: 1rem; max-width: 100%; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="brand"><strong>MANAGE</strong> <span>AI</span> &nbsp;·&nbsp; Dashboard Requirements</div>
+  <div class="controls">
+    <span class="version-badge">v2.0</span>
+    <button onclick="window.print()">Print</button>
+  </div>
+</header>
+
+<div class="layout">
+
+<nav class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Overview</div>
+    <a href="#overview" class="sidebar-link">Purpose & Vision</a>
+    <a href="#users" class="sidebar-link">Users</a>
+    <a href="#tech-stack" class="sidebar-link">Tech Stack</a>
+    <a href="#design-system" class="sidebar-link">Design System</a>
+    <a href="#navigation" class="sidebar-link">Navigation Structure</a>
+    <a href="#shared-components" class="sidebar-link">Shared Components</a>
+  </div>
+
+  <div class="sidebar-part">Part 1 — Workspace Tabs</div>
+  <div class="sidebar-section">
+    <a href="#tab-dashboard" class="sidebar-link">1.1 Dashboard (Home)</a>
+    <a href="#tab-new-build" class="sidebar-link">1.2 New Build</a>
+    <a href="#tab-builds" class="sidebar-link">1.3 Builds</a>
+    <a href="#tab-build-queue" class="sidebar-link">1.4 Build Queue</a>
+  </div>
+
+  <div class="sidebar-part">Part 2 — Client & Project Tabs</div>
+  <div class="sidebar-section">
+    <a href="#tab-clients" class="sidebar-link">2.1 All Clients</a>
+    <a href="#tab-client-detail" class="sidebar-link">2.2 Client Detail</a>
+    <a href="#tab-skillset-detail" class="sidebar-link">2.3 Skillset Detail</a>
+    <a href="#tab-new-account" class="sidebar-link">2.4 New Account Intake</a>
+  </div>
+
+  <div class="sidebar-part">Part 3 — Cockpit</div>
+  <div class="sidebar-section">
+    <a href="#cockpit-overview" class="sidebar-link">3.1 Cockpit Overview</a>
+    <a href="#cockpit-memory" class="sidebar-link">3.2 Memory System</a>
+    <a href="#cockpit-context" class="sidebar-link">3.3 Context & Skillset Mapping</a>
+    <a href="#cockpit-chat" class="sidebar-link">3.4 Chat Interface</a>
+    <a href="#cockpit-tools" class="sidebar-link">3.5 Tool Execution Display</a>
+    <a href="#cockpit-update-loop" class="sidebar-link">3.6 Skillset Update Loop</a>
+  </div>
+
+  <div class="sidebar-part">Part 4 — Terminal</div>
+  <div class="sidebar-section">
+    <a href="#terminal-overview" class="sidebar-link">4.1 Terminal Overview</a>
+    <a href="#terminal-sessions" class="sidebar-link">4.2 Multi-Session Manager</a>
+    <a href="#terminal-types" class="sidebar-link">4.3 Session Types</a>
+    <a href="#terminal-claude-code" class="sidebar-link">4.4 Claude Code Session</a>
+    <a href="#terminal-supabase" class="sidebar-link">4.5 Supabase Session</a>
+  </div>
+
+  <div class="sidebar-part">Part 5 — Intelligence & Charlie</div>
+  <div class="sidebar-section">
+    <a href="#charlie-overview" class="sidebar-link">5.1 Charlie Integration Overview</a>
+    <a href="#charlie-intake" class="sidebar-link">5.2 New Account Flow</a>
+    <a href="#charlie-alignment" class="sidebar-link">5.3 Alignment Sessions</a>
+    <a href="#charlie-dossier" class="sidebar-link">5.4 Customer Dossiers</a>
+    <a href="#charlie-opportunities" class="sidebar-link">5.5 Opportunity Tracker</a>
+    <a href="#charlie-briefs" class="sidebar-link">5.6 Requirements Briefs</a>
+    <a href="#charlie-transcripts" class="sidebar-link">5.7 Transcript Library</a>
+  </div>
+
+  <div class="sidebar-part">Part 6 — Operations Tabs</div>
+  <div class="sidebar-section">
+    <a href="#tab-approvals" class="sidebar-link">6.1 Approval Queue</a>
+    <a href="#tab-issue-feed" class="sidebar-link">6.2 Issue Feed</a>
+    <a href="#tab-platform" class="sidebar-link">6.3 Platform Health</a>
+    <a href="#tab-placeholders" class="sidebar-link">6.4 Placeholder Tabs</a>
+  </div>
+
+  <div class="sidebar-part">Part 7 — Data & API</div>
+  <div class="sidebar-section">
+    <a href="#data-sources" class="sidebar-link">7.1 Data Sources</a>
+    <a href="#api-calls" class="sidebar-link">7.2 API Calls</a>
+    <a href="#vercel-routes" class="sidebar-link">7.3 Vercel Proxy Routes</a>
+    <a href="#realtime" class="sidebar-link">7.4 Real-Time & Polling</a>
+  </div>
+
+  <div class="sidebar-part">Part 8 — Constraints & Criteria</div>
+  <div class="sidebar-section">
+    <a href="#technical-constraints" class="sidebar-link">8.1 Technical Constraints</a>
+    <a href="#scope-fence" class="sidebar-link">8.2 Scope Fence</a>
+    <a href="#acceptance-criteria" class="sidebar-link">8.3 Acceptance Criteria</a>
+    <a href="#build-plan" class="sidebar-link">8.4 Build Plan</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div class="doc-header">
+    <div class="doc-meta">
+      <span class="meta-tag internal">Internal Use</span>
+      <span class="meta-tag version">v2.0</span>
+      <span class="meta-tag date">March 2026</span>
+    </div>
+    <h1>ManageAI Dashboard Requirements</h1>
+    <p>Complete requirements for the unified FRIDAY + Charlie dashboard at friday.manageai.io — covering the full operational interface: build pipeline, Cockpit AI assistant with memory, multi-session terminal with Claude Code access, Charlie intelligence integration, new account intake, and all shared components across both systems.</p>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="section" id="overview">
+    <div class="section-header">
+      <h2>Purpose & Vision</h2>
+      <span class="os-ref">Overview</span>
+    </div>
+    <p>This is not a dashboard for one system. It is the operational interface for the entire ManageAI AI workforce — a single window where Brian manages builds, Dan manages customer relationships, and the team manages the platform. FRIDAY and Charlie share this interface and share components. A client that Charlie is aligning is the same client that FRIDAY builds for. A skillset that FRIDAY delivers is the same skillset Charlie monitors for adoption.</p>
+    <div class="callout principle"><strong>The guiding vision:</strong> Using the Cockpit must feel like using Claude Code in a chat window — not a chatbot. You have full context, files open in scope, tool execution visible inline, persistent memory across sessions, and every action mapped back to a real artifact in the system. The terminal sits alongside it for when you need direct server access. Together they are Brian's complete operational workbench.</div>
+    <div class="callout"><strong>The fluidity requirement:</strong> When Brian is working on a skillset through the Cockpit — editing files, running commands, updating configuration — every change must automatically surface on that skillset's dashboard page. No manual refresh. No separate update step. The Cockpit session and the skillset page are the same thing viewed from two angles.</div>
+  </div>
+
+  <!-- USERS -->
+  <div class="section" id="users">
+    <div class="section-header">
+      <h2>Users</h2>
+      <span class="os-ref">Overview</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>User</th><th>Role</th><th>Primary Sections</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Brian</strong></td><td>Head of Build</td><td>Cockpit (daily), Terminal, Build Queue, Skillset Detail, Platform Health, Approvals</td></tr>
+          <tr><td><strong>Dan</strong></td><td>CCO</td><td>New Account Intake, Client Detail, Charlie Alignment, Dossiers, Opportunities, Briefs, Build Approvals</td></tr>
+          <tr><td><strong>Jacob</strong></td><td>Architecture</td><td>Platform Health, Build Status, Client Detail (infra context)</td></tr>
+          <tr><td><strong>BT</strong></td><td>QA Lead</td><td>Build Queue, Approval Queue, Skillset Detail (output review)</td></tr>
+          <tr><td><strong>Chad</strong></td><td>Design</td><td>Agent profiles, design asset management — read-only most tabs</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div class="section" id="tech-stack">
+    <div class="section-header">
+      <h2>Tech Stack</h2>
+      <span class="os-ref">Overview</span>
+    </div>
+    <div class="identity-grid">
+      <div class="identity-field"><div class="label">File Structure</div><div class="value">Single file — index.html only</div></div>
+      <div class="identity-field"><div class="label">Framework</div><div class="value">Vanilla HTML/CSS/JS — no build tools</div></div>
+      <div class="identity-field"><div class="label">Hosting</div><div class="value">Vercel — auto-deploys on push to main</div></div>
+      <div class="identity-field"><div class="label">Live URL</div><div class="value">friday.manageai.io</div></div>
+      <div class="identity-field"><div class="label">GitHub Repo</div><div class="value">Brian2169fdsa/friday · main branch</div></div>
+      <div class="identity-field"><div class="label">Auth</div><div class="value">Supabase Auth — email + password</div></div>
+      <div class="identity-field"><div class="label">Database</div><div class="value">Supabase · fmemdogudiolevqsfuvd</div></div>
+      <div class="identity-field"><div class="label">Build API</div><div class="value">Hetzner 5.223.79.255:3000 (Vercel proxy)</div></div>
+      <div class="identity-field"><div class="label">Charlie API</div><div class="value">Hetzner 5.223.79.255:3001 (Vercel proxy)</div></div>
+      <div class="identity-field"><div class="label">Terminal</div><div class="value">ttyd · port 7682 · https://terminal.manageai.io</div></div>
+      <div class="identity-field"><div class="label">Responsive</div><div class="value">Desktop-first · min-width 1024px</div></div>
+      <div class="identity-field"><div class="label">Browsers</div><div class="value">Chrome, Safari, Edge — latest</div></div>
+    </div>
+    <div class="callout rule"><strong>Single file rule:</strong> All dashboard code lives in index.html. New files only in /api/ folder for Vercel proxy routes. No React, no build step of any kind.</div>
+  </div>
+
+  <!-- DESIGN SYSTEM -->
+  <div class="section" id="design-system">
+    <div class="section-header">
+      <h2>Design System</h2>
+      <span class="os-ref">Overview</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+        <tbody>
+          <tr><td><code>--accent</code></td><td>#4A8FD6</td><td>Primary blue — buttons, links, highlights</td></tr>
+          <tr><td><code>--nav</code></td><td>#1E3348</td><td>Left sidebar, dark cards, terminal background</td></tr>
+          <tr><td><code>--text</code></td><td>#1E293B</td><td>Primary text</td></tr>
+          <tr><td><code>--text-dim</code></td><td>#94A3B8</td><td>Labels, secondary, timestamps</td></tr>
+          <tr><td><code>--text-mid</code></td><td>#64748B</td><td>Body text, descriptions</td></tr>
+          <tr><td><code>--surface</code></td><td>#F8FAFC</td><td>Page background</td></tr>
+          <tr><td><code>--border</code></td><td>#E2E8F0</td><td>Cards, tables, dividers</td></tr>
+          <tr><td><code>--green</code></td><td>#22C55E</td><td>Active, success, QA pass, connected</td></tr>
+          <tr><td><code>--amber</code></td><td>#D97706</td><td>Warning, partial, awaiting signal</td></tr>
+          <tr><td><code>--red</code></td><td>#EF4444</td><td>Error, failed, critical</td></tr>
+          <tr><td><code>--font</code></td><td>Montserrat</td><td>All UI text</td></tr>
+          <tr><td><code>--mono</code></td><td>JetBrains Mono</td><td>Code, IDs, terminal output, tool names</td></tr>
+          <tr><td>Card radius</td><td>14px</td><td>All card containers</td></tr>
+          <tr><td>Button radius</td><td>8px</td><td>All buttons</td></tr>
+          <tr><td>Nav width</td><td>220px</td><td>Left navigation sidebar</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <div class="section" id="navigation">
+    <div class="section-header">
+      <h2>Navigation Structure</h2>
+      <span class="os-ref">Overview</span>
+    </div>
+    <p>Left sidebar, always visible, 220px wide. Grouped by function. Shared tabs (used by both FRIDAY and Charlie) are marked. Active tab highlighted with accent left border.</p>
+    <div class="nav-group">
+      <div class="nav-group-title">Workspace</div>
+      <div class="nav-item"><strong>Dashboard</strong> <span class="badge badge-active">Active</span></div>
+      <div class="nav-item"><strong>New Build</strong> <span class="badge badge-active">Active</span></div>
+      <div class="nav-item"><strong>Builds</strong> <span class="badge badge-active">Active</span></div>
+      <div class="nav-item"><strong>Pipeline</strong> <span class="badge badge-placeholder">Placeholder → OPS-001</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Clients &amp; Projects — Shared</div>
+      <div class="nav-item"><strong>All Clients</strong> <span class="badge badge-shared">Shared</span></div>
+      <div class="nav-item"><strong>New Account</strong> <span class="badge badge-shared">Shared · Charlie intake</span></div>
+      <div class="nav-item"><strong>Build Queue</strong> <span class="badge badge-active">Active</span></div>
+      <div class="nav-item"><strong>Agent Monitor</strong> <span class="badge badge-placeholder">Placeholder</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Intelligence — Charlie</div>
+      <div class="nav-item"><strong>Dossiers</strong> <span class="badge badge-shared">Shared · Charlie populates</span></div>
+      <div class="nav-item"><strong>Opportunities</strong> <span class="badge badge-shared">Shared · Charlie populates</span></div>
+      <div class="nav-item"><strong>Briefs</strong> <span class="badge badge-shared">Shared · Charlie → FRIDAY</span></div>
+      <div class="nav-item"><strong>Transcripts</strong> <span class="badge badge-placeholder">Placeholder · Charlie populates</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Agents</div>
+      <div class="nav-item"><strong>All Agents</strong> <span class="badge badge-placeholder">Placeholder → ai_team_members</span></div>
+      <div class="nav-item"><strong>Agent Health</strong> <span class="badge badge-placeholder">Placeholder</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Operations</div>
+      <div class="nav-item"><strong>Approvals</strong> <span class="badge badge-active">Active</span></div>
+      <div class="nav-item"><strong>Issue Feed</strong> <span class="badge badge-active">Active</span></div>
+      <div class="nav-item"><strong>Platform</strong> <span class="badge badge-active">Active</span></div>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-title">Control</div>
+      <div class="nav-item"><strong>Cockpit</strong> <span class="badge badge-active">Active</span></div>
+      <div class="nav-item"><strong>Terminal</strong> <span class="badge badge-active">Active · multi-session</span></div>
+      <div class="nav-item"><strong>Settings</strong> <span class="badge badge-placeholder">Placeholder</span></div>
+    </div>
+    <div class="callout"><strong>Bottom of sidebar:</strong> User avatar + name + role. Logged in as badge. Sign out button.</div>
+  </div>
+
+  <!-- SHARED COMPONENTS -->
+  <div class="section" id="shared-components">
+    <div class="section-header">
+      <h2>Shared Components</h2>
+      <span class="os-ref">Overview</span>
+    </div>
+    <p>These components are used by both FRIDAY and Charlie. They are built once and wired to both systems. They must work correctly whether the data comes from a FRIDAY build, a Charlie alignment session, or both.</p>
+    <div class="callout principle"><strong>Design principle:</strong> Charlie and FRIDAY share clients. A client card shows both their Charlie alignment status and their FRIDAY build status. The Client Detail page is the unified view of everything ManageAI has done for a client — not a FRIDAY page or a Charlie page.</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>Used In</th><th>FRIDAY Populates</th><th>Charlie Populates</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Client Card</strong></td><td>All Clients grid</td><td>Health score, builds, platform badges, last build date</td><td>Alignment status, opportunity count, dossier last updated</td></tr>
+          <tr><td><strong>Client Detail Page</strong></td><td>Clicking a client card</td><td>Skillset cards, build history, credentials</td><td>Dossier summary, opportunities, alignment timeline, open decisions</td></tr>
+          <tr><td><strong>Activity Feed</strong></td><td>Dashboard home, Client Detail</td><td>Build events (submitted, agents done, delivered)</td><td>Intelligence events (transcript ingested, opportunity flagged, brief ready)</td></tr>
+          <tr><td><strong>Project Tracker</strong></td><td>Client Detail, Dashboard</td><td>Build status per skillset per client</td><td>Brief pipeline status per opportunity per client</td></tr>
+          <tr><td><strong>Approval Queue</strong></td><td>Dashboard home, Approvals tab</td><td>Build approval gates (Temporal signal)</td><td>Brief approval gates (Dan must approve before FRIDAY receives)</td></tr>
+          <tr><td><strong>Timeline / Changelog</strong></td><td>Skillset Detail, Client Detail</td><td>Build deliveries, version changes, bug fixes</td><td>Alignment sessions, scope changes, stakeholder sign-offs</td></tr>
+          <tr><td><strong>Health Score</strong></td><td>Client cards, Client Detail header</td><td>Workflow execution health (WF-14)</td><td>Adoption and engagement health (future R4)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PART 1: WORKSPACE TABS -->
+  <div class="part-divider" id="part1">
+    <span class="part-num">Part 1</span>
+    <h2>Workspace Tabs</h2>
+    <span class="part-sub">Dashboard · New Build · Builds · Build Queue</span>
+  </div>
+
+  <div class="section" id="tab-dashboard">
+    <div class="section-header">
+      <h2>1.1 Dashboard (Home)</h2>
+      <span class="os-ref">Tab — Active</span>
+    </div>
+    <p>Command center. First view on login. Unified view of both FRIDAY and Charlie activity. Brian sees everything that needs attention without navigating anywhere.</p>
+
+    <div class="tab-card">
+      <div class="tab-card-header active-tab"><h3>Unified Approval Queue</h3><span class="tab-meta">Top of page — most prominent — hidden when empty</span></div>
+      <div class="tab-card-body">
+        <p>Two types of approvals appear here — FRIDAY build approvals and Charlie brief approvals. Both use the same card pattern but different badge colors and different action endpoints.</p>
+        <div class="table-wrap"><table><thead><tr><th>Type</th><th>Color</th><th>Approve Action</th><th>Changes Action</th><th>Reject Action</th></tr></thead><tbody>
+          <tr><td><strong>FRIDAY Build</strong></td><td>Amber badge "Awaiting Build Approval"</td><td>POST /api/build/:id/approve → Temporal signal</td><td>POST /api/build/:id/request-changes + notes</td><td>POST /api/build/:id/cancel</td></tr>
+          <tr><td><strong>Charlie Brief</strong></td><td>Blue badge "Brief Ready for Review"</td><td>POST /api/charlie/brief/:id/approve → fires to FRIDAY</td><td>POST /api/charlie/brief/:id/request-changes</td><td>POST /api/charlie/brief/:id/reject</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="tab-card">
+      <div class="tab-card-header active-tab"><h3>KPI Cards</h3><span class="tab-meta">4 cards in a row</span></div>
+      <div class="tab-card-body">
+        <div class="table-wrap"><table><thead><tr><th>Card</th><th>Source</th></tr></thead><tbody>
+          <tr><td><strong>Active Builds</strong></td><td>friday_builds WHERE status IN ('building','queued')</td></tr>
+          <tr><td><strong>Delivered This Month</strong></td><td>friday_builds WHERE status='done' AND this month</td></tr>
+          <tr><td><strong>Active Clients</strong></td><td>friday_customers WHERE status='active'</td></tr>
+          <tr><td><strong>Open Opportunities</strong></td><td>opportunity_tracker WHERE status NOT IN ('delivered','rejected') — Charlie data, 0 until Charlie active</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="tab-card">
+      <div class="tab-card-header active-tab"><h3>Unified Activity Feed</h3><span class="tab-meta">Real-time stream of all system events</span></div>
+      <div class="tab-card-body">
+        <p>Source: friday_activity_log — all events from FRIDAY builds AND Charlie intelligence. Polls every 60 seconds. Last 20 entries.</p>
+        <div class="table-wrap"><table><thead><tr><th>Event Type Prefix</th><th>Icon</th><th>System</th></tr></thead><tbody>
+          <tr><td>build.*</td><td>🏗️</td><td>FRIDAY</td></tr>
+          <tr><td>agent.*</td><td>🤖</td><td>FRIDAY</td></tr>
+          <tr><td>delivery.*</td><td>📦</td><td>FRIDAY</td></tr>
+          <tr><td>issue.*</td><td>⚠️</td><td>FRIDAY</td></tr>
+          <tr><td>fix.*</td><td>🔧</td><td>FRIDAY</td></tr>
+          <tr><td>charlie.transcript.*</td><td>🎙️</td><td>Charlie</td></tr>
+          <tr><td>charlie.opportunity.*</td><td>💡</td><td>Charlie</td></tr>
+          <tr><td>charlie.brief.*</td><td>📋</td><td>Charlie</td></tr>
+          <tr><td>charlie.dossier.*</td><td>🧠</td><td>Charlie</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="tab-new-build">
+    <div class="section-header">
+      <h2>1.2 New Build</h2>
+      <span class="os-ref">Tab — Active</span>
+    </div>
+    <p>Submit a manual build ticket. When Charlie is active, most builds arrive via the Briefs tab automatically — this tab is for direct submissions by Brian.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Client</strong></td><td>Dropdown</td><td>Yes</td><td>Loads from friday_customers. Type-to-filter.</td></tr>
+          <tr><td><strong>Project Name</strong></td><td>Text</td><td>Yes</td><td>Free text. Becomes the skillset name.</td></tr>
+          <tr><td><strong>Platform</strong></td><td>Dropdown</td><td>Yes</td><td>n8n · Make.com · Zapier · Custom</td></tr>
+          <tr><td><strong>Description</strong></td><td>Textarea</td><td>Yes</td><td>Min 50 chars. Character count shown. Claude Haiku scores this.</td></tr>
+          <tr><td><strong>Priority</strong></td><td>Dropdown</td><td>Yes</td><td>low · medium · high · urgent</td></tr>
+          <tr><td><strong>Submitter</strong></td><td>Text</td><td>Yes</td><td>Pre-filled from Supabase Auth session.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Submission → POST /api/build → starts FridayBuildWorkflow in Temporal. Q&A loop if completeness &lt;75. Confirmation shows ticket ID with link to Build Queue.</p>
+  </div>
+
+  <div class="section" id="tab-builds">
+    <div class="section-header">
+      <h2>1.3 Builds</h2>
+      <span class="os-ref">Tab — Active</span>
+    </div>
+    <p>Full history. Filterable by client, platform, status, date range. Sortable. 25 per page. Each row shows ticket ID, client, project, platform badge, status badge, QA score bar, version, last updated, [View] button. Temporal status states: queued / checking / planning / building / scoring / awaiting_approval / delivering / done / failed.</p>
+  </div>
+
+  <div class="section" id="tab-build-queue">
+    <div class="section-header">
+      <h2>1.4 Build Queue</h2>
+      <span class="os-ref">Tab — Active</span>
+    </div>
+    <p>Live Temporal workflow view. Polls GET /api/status/:ticketId every 10 seconds per active build. Shows: workflow ID, client + project, current activity name, step progress ("Activity 7 of 22"), time elapsed, status badge. Rows paused at HumanApprovalGateActivity show approval buttons inline — same as Dashboard approval queue.</p>
+  </div>
+
+  <!-- PART 2: CLIENT & PROJECT TABS -->
+  <div class="part-divider" id="part2">
+    <span class="part-num">Part 2</span>
+    <h2>Client &amp; Project Tabs</h2>
+    <span class="part-sub">All Clients · Client Detail · Skillset Detail · New Account Intake</span>
+  </div>
+
+  <div class="section" id="tab-clients">
+    <div class="section-header">
+      <h2>2.1 All Clients</h2>
+      <span class="os-ref">Tab — Shared</span>
+    </div>
+    <div class="shared-banner">🔗 Shared component — populated by both FRIDAY and Charlie</div>
+    <p>Client grid with unified health scores. Each card shows the combined state of FRIDAY's builds AND Charlie's alignment work for that client.</p>
+    <h4>Client Card Elements</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Element</th><th>Source</th><th>System</th></tr></thead>
+        <tbody>
+          <tr><td>Initials avatar (color from name hash)</td><td>friday_customers.name</td><td>Shared</td></tr>
+          <tr><td>Client name</td><td>friday_customers.name</td><td>Shared</td></tr>
+          <tr><td>Health dot + score</td><td>friday_customers.health_score</td><td>FRIDAY (WF-14)</td></tr>
+          <tr><td>Active skillsets count</td><td>COUNT friday_skillsets WHERE customer_id</td><td>FRIDAY</td></tr>
+          <tr><td>Last build date</td><td>MAX friday_builds.created_at</td><td>FRIDAY</td></tr>
+          <tr><td>Platform badges</td><td>DISTINCT platforms from friday_builds</td><td>FRIDAY</td></tr>
+          <tr><td>Alignment status badge</td><td>Derived from prototype_briefs + opportunity_tracker</td><td>Charlie (empty until Charlie active)</td></tr>
+          <tr><td>Open opportunities count</td><td>friday_customers.opportunity_count</td><td>Charlie</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>[+ Add Client] opens New Account Intake modal (Section 2.4). Search filters live by client name.</p>
+  </div>
+
+  <div class="section" id="tab-client-detail">
+    <div class="section-header">
+      <h2>2.2 Client Detail</h2>
+      <span class="os-ref">Tab — Shared</span>
+    </div>
+    <div class="shared-banner">🔗 Shared component — the unified client view</div>
+    <p>Everything ManageAI has done for one client. Two-column layout. URL: /clients/{customerId}.</p>
+    <h4>Left Column — Project Tracker</h4>
+    <ul>
+      <li><strong>Skillset Cards (FRIDAY):</strong> One per friday_skillsets row. Name, platform, version, build count, last build, health indicator. Click → Skillset Detail.</li>
+      <li><strong>Build History Timeline:</strong> Last 10 builds grouped by skillset. Status, QA score, date, version.</li>
+      <li><strong>Brief Pipeline (Charlie):</strong> Active Requirements Briefs in progress. Status: drafting / awaiting Dan approval / sent to FRIDAY / building / delivered. Visible once Charlie active.</li>
+    </ul>
+    <h4>Right Column — Intelligence & Context</h4>
+    <ul>
+      <li>Client info: industry, status, created date, AITM owner</li>
+      <li>Charlie Dossier summary card: AI Workforce Vision (Now/Next/Later), last updated. Placeholder until Charlie active.</li>
+      <li>Open opportunities count + top opportunity (from opportunity_tracker)</li>
+      <li>Key stakeholders list (from customer_dossiers.stakeholders)</li>
+      <li>Open decisions count (from customer_dossiers.open_decisions)</li>
+      <li>Recent activity: last 5 items from friday_activity_log filtered by customer_id</li>
+    </ul>
+  </div>
+
+  <div class="section" id="tab-skillset-detail">
+    <div class="section-header">
+      <h2>2.3 Skillset Detail (View 3)</h2>
+      <span class="os-ref">Tab — Active (View 3)</span>
+    </div>
+    <p>The primary deliverable surface. Two-column layout. Back → Client Detail. URL: /clients/{customerId}/{buildId}.</p>
+    <h4>Header</h4>
+    <ul>
+      <li>← Back to Client</li>
+      <li>Project name (24px, 800 weight) + subtitle: client · platform · ticket ID</li>
+      <li>[🤖 Build Agent] — opens Cockpit pre-loaded with this build's context</li>
+      <li>[💬 Team Chat] — team chat popover</li>
+    </ul>
+    <h4>Main Column — 4 Sections</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Section</th><th>Source</th><th>Content</th></tr></thead>
+        <tbody>
+          <tr><td><strong>⚡ Automation</strong></td><td>build_scenarios</td><td>Suite card + expandable WF cards with module stages, real n8n links, file download cards from output_links</td></tr>
+          <tr><td><strong>📦 Deliverable Documents</strong></td><td>friday_builds.output_links</td><td>3-column grid, colored borders by type, real SharePoint Open ↗ links, Preview button</td></tr>
+          <tr><td><strong>✏️ Change Log</strong></td><td>workflow_changes</td><td>Inline entries, type-colored badges. + Log Change modal. Auto-updates when Cockpit makes changes to this skillset.</td></tr>
+          <tr><td><strong>🧠 Customer Intelligence</strong></td><td>knowledge_documents</td><td>Opportunity Assessment + Discovery Transcripts. Always visible. Empty state until Charlie active.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>Sidebar — 4 Cards</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Card</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Build Details</strong></td><td>friday_builds — ticket ID, platform, version, QA score bar, dates</td></tr>
+          <tr><td><strong>Credentials & API Keys</strong></td><td>build_credentials — masked values, type badges, Reveal/Copy, + Add Credential</td></tr>
+          <tr><td><strong>AI Configuration</strong></td><td>build_agent_configs — dark navy, agent cards, View Full Prompt overlay</td></tr>
+          <tr><td><strong>Tools & Integrations</strong></td><td>Derived from platform + build_log — icon + name + status dot only</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout rule"><strong>Live update requirement:</strong> When Brian is in the Cockpit working on this skillset and makes a change (edits a file, runs a command that updates a credential, writes to Supabase), the Skillset Detail page must reflect that change without a full page reload. The Change Log must auto-update. This is the core fluidity requirement.</div>
+  </div>
+
+  <div class="section" id="tab-new-account">
+    <div class="section-header">
+      <h2>2.4 New Account Intake</h2>
+      <span class="os-ref">Tab — Shared · Charlie Entry Point</span>
+    </div>
+    <div class="shared-banner">🔗 Shared component — primary entry point for Charlie's alignment process</div>
+    <p>This is how a new prospect or client enters the ManageAI system. Dan fills this out after an SE discovery session. Completing this intake creates the customer record AND triggers Charlie to begin the Feasibility Gate.</p>
+    <h4>Intake Form Fields</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Company Name</strong></td><td>Text</td><td>Yes</td><td>Creates friday_customers record</td></tr>
+          <tr><td><strong>Industry</strong></td><td>Dropdown</td><td>Yes</td><td>Construction, Healthcare, Logistics, Professional Services, Other</td></tr>
+          <tr><td><strong>Company Size</strong></td><td>Dropdown</td><td>Yes</td><td>1–50 / 51–200 / 201–1000 / 1000+</td></tr>
+          <tr><td><strong>Primary Contact Name</strong></td><td>Text</td><td>Yes</td><td>Stored in customer_dossiers.stakeholders</td></tr>
+          <tr><td><strong>Primary Contact Email</strong></td><td>Email</td><td>Yes</td><td>friday_customers.contact_email</td></tr>
+          <tr><td><strong>Primary Contact Title</strong></td><td>Text</td><td>No</td><td>Stakeholder record</td></tr>
+          <tr><td><strong>Internal Champion</strong></td><td>Text</td><td>No</td><td>Second stakeholder record</td></tr>
+          <tr><td><strong>Key Business Problem</strong></td><td>Textarea</td><td>Yes</td><td>Min 100 chars. First input for Charlie's Feasibility Gate.</td></tr>
+          <tr><td><strong>Prioritized Opportunities (2–3)</strong></td><td>Textarea list</td><td>Yes</td><td>SE discovery output. Charlie turns these into Themes.</td></tr>
+          <tr><td><strong>Current Systems</strong></td><td>Text (comma-separated)</td><td>No</td><td>Pre-populates customer_dossiers.systems</td></tr>
+          <tr><td><strong>Teams Channel</strong></td><td>Text</td><td>No</td><td>Channel name for Charlie to post to</td></tr>
+          <tr><td><strong>AITM Owner</strong></td><td>Dropdown</td><td>Yes</td><td>Loads from team members — who manages this account</td></tr>
+          <tr><td><strong>Manage AI Lead</strong></td><td>Dropdown</td><td>Yes</td><td>Dan or other CCO team member</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>Submission Flow</h4>
+    <div class="loop-step"><div class="loop-step-num">1</div><div class="loop-step-content"><strong>Validate + submit</strong><span>POST /api/charlie/intake. Creates friday_customers row + customer_dossiers row + charlie_ingestion_queue seed entry.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">2</div><div class="loop-step-content"><strong>Charlie Feasibility Gate fires</strong><span>CharlieAlignmentWorkflow starts in Temporal. Feasibility check runs autonomously. Result posted to Dan via Teams.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">3</div><div class="loop-step-content"><strong>Dashboard redirects to Client Detail</strong><span>New client card appears in All Clients. Client Detail shows alignment status: "Feasibility check running..."</span></div></div>
+    <div class="callout principle"><strong>This is the start of the Charlie → FRIDAY handoff chain.</strong> New Account → Charlie Alignment → Requirements Brief → FRIDAY Build → Delivered Skillset. Every client on the platform entered through this form.</div>
+  </div>
+
+  <!-- PART 3: COCKPIT -->
+  <div class="part-divider" id="part3">
+    <span class="part-num">Part 3</span>
+    <h2>Cockpit</h2>
+    <span class="part-sub">The AI workbench — must feel like Claude Code in a chat window</span>
+  </div>
+
+  <div class="section" id="cockpit-overview">
+    <div class="section-header">
+      <h2>3.1 Cockpit Overview</h2>
+      <span class="os-ref">Cockpit</span>
+    </div>
+    <p>The Cockpit is not a chatbot. It is a full AI workbench. It has persistent memory, deep context awareness, inline tool execution with visible output, code editing with diff preview, file scope management, and direct wiring to every system in the stack. Using it must feel exactly like using Claude Code in a terminal — but in a chat window.</p>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Layout</span><h3>Three-Pane Layout</h3></div>
+      <div class="component-body">
+        <div class="table-wrap"><table><thead><tr><th>Pane</th><th>Width</th><th>Content</th></tr></thead><tbody>
+          <tr><td><strong>Left — Session Sidebar</strong></td><td>260px</td><td>Context selector (client + skillset), session list grouped by date, session metadata</td></tr>
+          <tr><td><strong>Center — Chat Window</strong></td><td>Flex-grow</td><td>Message thread, streaming responses, tool execution output, code blocks, diff views</td></tr>
+          <tr><td><strong>Right — Context Panel</strong></td><td>280px (collapsible)</td><td>Files in scope, active skillset details, recent changes, memory summary</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Experience</span><h3>What It Must Feel Like</h3></div>
+      <div class="component-body">
+        <div class="table-wrap"><table><thead><tr><th>Claude Code Feature</th><th>Cockpit Equivalent</th></tr></thead><tbody>
+          <tr><td>Files open in context (CLAUDE.md, referenced files)</td><td>Right panel shows files currently in scope — added automatically when Brian mentions them or manually pinned</td></tr>
+          <tr><td>Tool execution with output shown inline</td><td>Tool calls expand inline: ✅ tool_name → shows execution → shows result in collapsible block</td></tr>
+          <tr><td>Diff view before applying file changes</td><td>write_file calls show a before/after diff and require [Apply] or [Cancel] before executing</td></tr>
+          <tr><td>Approval gates for destructive actions</td><td>Any action flagged as destructive shows an approval card before executing</td></tr>
+          <tr><td>Session continuity across conversations</td><td>Memory system (Part 3.2) — full context of previous sessions injected into every new session</td></tr>
+          <tr><td>Reads any file on the system</td><td>read_file tool renders file contents in a code block with syntax highlighting</td></tr>
+          <tr><td>Commits and pushes to GitHub</td><td>git_action tool with commit summary shown, push confirmation, Vercel deploy link shown after</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="cockpit-memory">
+    <div class="section-header">
+      <h2>3.2 Memory System</h2>
+      <span class="os-ref">Cockpit</span>
+    </div>
+    <p>Every Cockpit session is persistent and searchable. FRIDAY remembers everything across sessions — per client, per skillset, per topic. New sessions start with full awareness of what happened before.</p>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Session Storage</span><h3>cockpit_chats Schema</h3></div>
+      <div class="component-body">
+        <div class="table-wrap"><table><thead><tr><th>Column</th><th>Type</th><th>Purpose</th></tr></thead><tbody>
+          <tr><td>id</td><td>UUID</td><td>Session ID</td></tr>
+          <tr><td>customer_id</td><td>UUID FK</td><td>Client this session is about — required if context selected</td></tr>
+          <tr><td>skillset_id</td><td>UUID FK</td><td>Skillset this session is about — links all changes back</td></tr>
+          <tr><td>mode</td><td>TEXT</td><td>'general' / 'build' / 'platform' / 'client'</td></tr>
+          <tr><td>title</td><td>TEXT</td><td>Auto-generated from first message (Claude-generated summary)</td></tr>
+          <tr><td>messages</td><td>JSONB</td><td>Full message array with roles, content, tool calls, tool results</td></tr>
+          <tr><td>summary</td><td>TEXT</td><td>Claude-generated 2-3 sentence summary. Generated on session end.</td></tr>
+          <tr><td>files_touched</td><td>JSONB</td><td>List of files read or written in this session</td></tr>
+          <tr><td>changes_made</td><td>JSONB</td><td>List of workflow_changes entries created in this session</td></tr>
+          <tr><td>message_count</td><td>INT</td><td>—</td></tr>
+          <tr><td>last_message</td><td>TEXT</td><td>Truncated last message for sidebar preview</td></tr>
+          <tr><td>created_at</td><td>TIMESTAMPTZ</td><td>—</td></tr>
+          <tr><td>updated_at</td><td>TIMESTAMPTZ</td><td>—</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Memory Injection</span><h3>How Previous Sessions Inform New Sessions</h3></div>
+      <div class="component-body">
+        <p>When Brian starts a new Cockpit session with a skillset selected, the system prompt automatically includes:</p>
+        <div class="loop-step"><div class="loop-step-num">1</div><div class="loop-step-content"><strong>Skillset context</strong><span>Current skillset name, platform, version, last build date, QA score, deployment status</span></div></div>
+        <div class="loop-step"><div class="loop-step-num">2</div><div class="loop-step-content"><strong>Recent session summaries (last 5)</strong><span>The Claude-generated summary of each previous session for this skillset. FRIDAY arrives knowing what was discussed, what was changed, what was left unresolved.</span></div></div>
+        <div class="loop-step"><div class="loop-step-num">3</div><div class="loop-step-content"><strong>Changes made</strong><span>Last 10 workflow_changes entries for this skillset — what was built, fixed, patched, when, by whom.</span></div></div>
+        <div class="loop-step"><div class="loop-step-num">4</div><div class="loop-step-content"><strong>Open issues</strong><span>Any friday_issues rows with fix_status='open' for this client — FRIDAY knows what's broken before Brian mentions it.</span></div></div>
+        <div class="loop-step"><div class="loop-step-num">5</div><div class="loop-step-content"><strong>Files last touched</strong><span>List of files read/written in the most recent session — so FRIDAY knows where to look first.</span></div></div>
+        <div class="callout principle"><strong>The result:</strong> Brian opens a new session and types "where did we leave off?" — FRIDAY gives a complete answer. Brian types "fix the webhook issue" — FRIDAY already knows which webhook, which workflow, and what was tried last time.</div>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Auto-Summarize</span><h3>Session Summary Generation</h3></div>
+      <div class="component-body">
+        <p>When Brian switches sessions or navigates away, POST /api/cockpit/summarize fires in the background with the full message history. Claude generates a 2–3 sentence summary that captures: what was worked on, what was changed, what was left incomplete. Stored in cockpit_chats.summary. Used as input for the next session's memory injection.</p>
+        <p>Summary format example: "Fixed the Google Sheets retry logic in WF-01 for Apex Logistics — added 5-minute backoff after quota errors. Blueprint updated and pushed to GitHub. Still need to test the activation webhook — left as open item."</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="cockpit-context">
+    <div class="section-header">
+      <h2>3.3 Context & Skillset Mapping</h2>
+      <span class="os-ref">Cockpit</span>
+    </div>
+    <p>Every Cockpit session must know what it is working on. Every action taken in a session must map back to the correct skillset and client so the dashboard stays live.</p>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Context Selector</span><h3>Left Sidebar — Session Controls</h3></div>
+      <div class="component-body">
+        <ul>
+          <li><strong>Client dropdown:</strong> Loads all friday_customers. Default: "— General —". On select: loads skillset dropdown, filters session list, injects client context into system prompt.</li>
+          <li><strong>Skillset dropdown:</strong> Hidden until client selected. Loads friday_skillsets WHERE customer_id = selected. On select: injects full skillset context + memory.</li>
+          <li>[+ New Session] button — clears context, new session starts on first message</li>
+          <li>Session list grouped: TODAY / YESTERDAY / THIS WEEK / OLDER. Each item: title, time ago, client badge if set, 1-line summary.</li>
+        </ul>
+        <div class="callout rule"><strong>Context is always set before the session starts.</strong> If Brian opens a build from the Skillset Detail page via [🤖 Build Agent], the Cockpit opens pre-loaded with that client + skillset already selected and memory already injected. Brian never has to select context manually when arriving from a linked button.</div>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Skillset Update Loop</span><h3>How Cockpit Actions Flow Back to the Dashboard</h3></div>
+      <div class="component-body">
+        <p>This is the core fluidity requirement. Every meaningful action taken in the Cockpit must be visible on the Skillset Detail page in real time.</p>
+        <div class="table-wrap"><table><thead><tr><th>Cockpit Action</th><th>Dashboard Update</th><th>How</th></tr></thead><tbody>
+          <tr><td>write_file → /opt/manageai/agents/</td><td>AI Config card refreshes to show updated prompts</td><td>build_agent_configs row updated → dashboard polls</td></tr>
+          <tr><td>git_action → commit + push</td><td>Change Log entry added with commit message</td><td>workflow_changes row auto-created by server after git push</td></tr>
+          <tr><td>supabase_write → build_credentials</td><td>Credentials card in skillset sidebar refreshes</td><td>Supabase row written → dashboard Supabase poll picks it up</td></tr>
+          <tr><td>n8n_action → activate workflow</td><td>Automation section scenario status badge updates to Active</td><td>build_scenarios row updated → dashboard polls</td></tr>
+          <tr><td>submit_build → new version</td><td>Entire skillset page refreshes with new build data</td><td>Post-build pipeline writes all tables → dashboard loads new data</td></tr>
+          <tr><td>Any tool call that touches a skillset</td><td>Activity Feed entry appears: "Brian updated [thing] via Cockpit"</td><td>logActivity() called in server after every tool call with skillset context</td></tr>
+        </tbody></table></div>
+        <div class="callout principle"><strong>The implementation:</strong> The Cockpit sends customer_id and skillset_id with every message. The server includes these in every tool execution context. logActivity() is called after every tool call. The dashboard polls friday_activity_log and relevant Supabase tables every 30 seconds when a skillset page is open.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="cockpit-chat">
+    <div class="section-header">
+      <h2>3.4 Chat Interface</h2>
+      <span class="os-ref">Cockpit</span>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Message Display</span><h3>How Messages Render</h3></div>
+      <div class="component-body">
+        <div class="table-wrap"><table><thead><tr><th>Element</th><th>Appearance</th><th>Detail</th></tr></thead><tbody>
+          <tr><td><strong>User message</strong></td><td>Right-aligned, dark bubble (var(--nav))</td><td>White text, rounded corners, timestamp on hover</td></tr>
+          <tr><td><strong>FRIDAY message</strong></td><td>Left-aligned, white card, FR avatar dot</td><td>Full markdown rendering: bold, italic, headers, lists, tables, code blocks with syntax highlighting</td></tr>
+          <tr><td><strong>Tool indicator</strong></td><td>Above reply text, left-aligned</td><td>✅ tool_name — monospace, small, green. Appears as tools execute, before reply text starts streaming.</td></tr>
+          <tr><td><strong>Streaming text</strong></td><td>Word by word as SSE arrives</td><td>Cursor blink while streaming. Send button disabled. Cancel button shows.</td></tr>
+          <tr><td><strong>Code blocks</strong></td><td>Dark background, monospace, language label</td><td>Syntax highlighting. Copy button top-right. Line numbers for &gt;10 lines.</td></tr>
+          <tr><td><strong>Diff block</strong></td><td>Green + lines, red - lines</td><td>Shows before applying any file change. [Apply] [Cancel] buttons below diff.</td></tr>
+          <tr><td><strong>Tool result block</strong></td><td>Collapsible, monospace</td><td>Truncated by default (3 lines), "Show full output" expands. Success = green border, error = red border.</td></tr>
+          <tr><td><strong>Approval gate card</strong></td><td>Amber bordered card</td><td>Shows for destructive actions. [Confirm] [Cancel]. FRIDAY does not proceed until confirmed.</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Input Bar</span><h3>Message Input</h3></div>
+      <div class="component-body">
+        <ul>
+          <li>Textarea — placeholder: "Message F.R.I.D.A.Y. — ask anything, run anything"</li>
+          <li>Auto-resize up to 6 lines, then scrolls</li>
+          <li>Enter = send · Shift+Enter = newline</li>
+          <li>Send button (arrow icon) — disabled while streaming</li>
+          <li>@ mention to pin a file to context: "@server.js" → reads the file and adds to right panel</li>
+          <li>Quick action chips (persistent below input): [Show active builds] [Check server health] [List n8n workflows] [View recent errors] [Show open issues]</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">SSE Streaming</span><h3>Event Format — Critical Fix Required</h3></div>
+      <div class="component-body">
+        <div class="callout rule"><strong>Known bug:</strong> Reply text currently renders as an empty box. Tool indicators show correctly. The reply event arrives but is not being appended to the correct DOM element. Fix: the event listener for 'reply' must append the text content to the message bubble element, not overwrite it. The 'done' event must NOT clear text content — it must only finalize the message state.</div>
+        <div class="table-wrap"><table><thead><tr><th>SSE Event</th><th>Data Shape</th><th>UI Action</th></tr></thead><tbody>
+          <tr><td>tool</td><td>{ name: "query_supabase" }</td><td>Append ✅ query_supabase above reply area</td></tr>
+          <tr><td>tool_result</td><td>{ name: "...", result: "...", success: bool }</td><td>Append collapsible tool result block</td></tr>
+          <tr><td>diff</td><td>{ file: "...", before: "...", after: "..." }</td><td>Render diff block with Apply/Cancel</td></tr>
+          <tr><td>approval_required</td><td>{ action: "...", description: "..." }</td><td>Render approval gate card, pause streaming</td></tr>
+          <tr><td>reply</td><td>{ text: "..." }</td><td>APPEND text to reply bubble (word by word)</td></tr>
+          <tr><td>done</td><td>{ chatId: "uuid" }</td><td>Finalize message, save to Supabase, re-enable send</td></tr>
+          <tr><td>error</td><td>{ message: "..." }</td><td>Show error in bubble, re-enable send</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Right Panel</span><h3>Context Panel — Files &amp; State</h3></div>
+      <div class="component-body">
+        <p>Collapsible right panel (280px). Shows what FRIDAY currently knows about. Updates as the session progresses.</p>
+        <ul>
+          <li><strong>Active Skillset:</strong> Name, platform, version, QA score, last build date (if skillset selected)</li>
+          <li><strong>Files in Scope:</strong> Files read or mentioned in this session. Each file: icon + filename + path. Click to re-read. × to remove from scope.</li>
+          <li><strong>Session Memory:</strong> Summary from previous session for this skillset. Shown as dim text at top of panel.</li>
+          <li><strong>Recent Changes:</strong> Last 3 workflow_changes entries for this skillset — what was changed and when.</li>
+          <li><strong>Open Issues:</strong> Any friday_issues rows for this client with fix_status='open'.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="cockpit-tools">
+    <div class="section-header">
+      <h2>3.5 Tool Execution Display</h2>
+      <span class="os-ref">Cockpit</span>
+    </div>
+    <p>Every tool call must be visible. Brian should be able to see exactly what FRIDAY did and what the result was — like watching Claude Code work in a terminal.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tool</th><th>Indicator</th><th>Result Display</th><th>Special UI</th></tr></thead>
+        <tbody>
+          <tr><td><strong>submit_build</strong></td><td>✅ submit_build</td><td>Ticket ID + link to Build Queue</td><td>Build status card appears inline</td></tr>
+          <tr><td><strong>run_command</strong></td><td>✅ run_command</td><td>Collapsible terminal output block (dark background, monospace)</td><td>Exit code shown. Non-zero = red border.</td></tr>
+          <tr><td><strong>query_supabase</strong></td><td>✅ query_supabase</td><td>Collapsible JSON result (truncated to 10 rows, "show all" link)</td><td>Row count shown</td></tr>
+          <tr><td><strong>supabase_write</strong></td><td>✅ supabase_write</td><td>"Wrote {n} row(s) to {table}"</td><td>Success = green, error = red</td></tr>
+          <tr><td><strong>read_file</strong></td><td>✅ read_file</td><td>File contents in syntax-highlighted code block. File added to right panel scope.</td><td>Language auto-detected from extension</td></tr>
+          <tr><td><strong>write_file</strong></td><td>✅ write_file</td><td>Diff view rendered. [Apply] [Cancel] required before file is written.</td><td>After apply: "Written to {path}" + file added to right panel</td></tr>
+          <tr><td><strong>git_action</strong></td><td>✅ git_action</td><td>Git output in code block. Commit hash shown. Push: Vercel deployment link shown.</td><td>After push: "Deploying to Vercel..." with link</td></tr>
+          <tr><td><strong>n8n_action</strong></td><td>✅ n8n_action</td><td>Workflow list or activation confirmation</td><td>Activation: Automation section updates on skillset page</td></tr>
+          <tr><td><strong>temporal_action</strong></td><td>✅ temporal_action</td><td>Workflow list with status, or action confirmation</td><td>Cancel/signal: build status updates in Build Queue</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="cockpit-update-loop">
+    <div class="section-header">
+      <h2>3.6 Skillset Update Loop</h2>
+      <span class="os-ref">Cockpit</span>
+    </div>
+    <p>This is the full flow of how a Cockpit session creates visible changes on the dashboard. This must work seamlessly — Brian should never have to manually refresh anything.</p>
+
+    <div class="loop-step"><div class="loop-step-num">1</div><div class="loop-step-content"><strong>Brian selects Apex Logistics + Driver Dispatch skillset in Cockpit</strong><span>Memory injected: "Last session: fixed Google Sheets node. Open issue: activation webhook not firing. Files touched: server.js, WF-01 blueprint."</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">2</div><div class="loop-step-content"><strong>Brian: "Fix the activation webhook"</strong><span>FRIDAY reads the Blueprint.json (read_file → added to right panel), diagnoses the issue, proposes a fix.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">3</div><div class="loop-step-content"><strong>FRIDAY shows diff of proposed Blueprint.json change</strong><span>[Apply] [Cancel] buttons. Brian clicks Apply.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">4</div><div class="loop-step-content"><strong>write_file executes, then n8n_action updates the workflow in n8n</strong><span>Server writes file, updates n8n via local API, writes to build_scenarios, creates workflow_changes entry (type: bug_fix, "Fixed activation webhook trigger in WF-01"), logs to friday_activity_log.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">5</div><div class="loop-step-content"><strong>Skillset Detail page (if open) auto-updates within 30 seconds</strong><span>Change Log shows new "bug_fix" entry. Automation section shows updated scenario. Activity Feed shows the event. The issue card is marked resolved.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">6</div><div class="loop-step-content"><strong>Session ends, summary generated</strong><span>"Fixed activation webhook in WF-01 for Apex Logistics Driver Dispatch. Blueprint updated in n8n. Activation test successful. Issue #47 resolved."</span></div></div>
+    <div class="callout rule"><strong>The requirement:</strong> Steps 4–5 must happen automatically. The server must create the workflow_changes entry, write to friday_activity_log, and update friday_issues — not FRIDAY as an afterthought. It is wired into the server-side tool execution, not left to the LLM to remember to do.</div>
+  </div>
+
+  <!-- PART 4: TERMINAL -->
+  <div class="part-divider" id="part4">
+    <span class="part-num">Part 4</span>
+    <h2>Terminal</h2>
+    <span class="part-sub">Multi-session · Claude Code · Supabase · General Bash</span>
+  </div>
+
+  <div class="section" id="terminal-overview">
+    <div class="section-header">
+      <h2>4.1 Terminal Overview</h2>
+      <span class="os-ref">Terminal</span>
+    </div>
+    <p>The Terminal tab provides direct server access with multiple named sessions. Unlike the Cockpit (which uses AI to mediate every action), the Terminal gives raw access — when Brian needs to see exactly what's happening on the server or run Claude Code directly, this is where he goes.</p>
+    <div class="callout principle"><strong>Relationship to Cockpit:</strong> The Cockpit handles 90% of server interactions through the run_command and other tools — with AI context, memory, and automatic dashboard updates. The Terminal handles the other 10%: complex interactive sessions, long-running processes, Claude Code autonomous builds, and direct database inspection. Both live in the dashboard and complement each other.</div>
+    <div class="callout warning"><strong>SSL status:</strong> terminal.manageai.io SSL cert pending (Let's Encrypt DNS challenge). Until cert issued: each session opens in a new browser tab at https://5.223.79.255:7682. Once cert issued: sessions embed as iframes in the Terminal tab.</div>
+  </div>
+
+  <div class="section" id="terminal-sessions">
+    <div class="section-header">
+      <h2>4.2 Multi-Session Manager</h2>
+      <span class="os-ref">Terminal</span>
+    </div>
+    <p>Multiple named sessions run simultaneously. Each session is a persistent tmux window on the server — it survives browser refreshes and reconnects.</p>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Session Bar</span><h3>Tab Bar at Top of Terminal Tab</h3></div>
+      <div class="component-body">
+        <p>Horizontal tab bar at the top of the Terminal tab. Each session is a named tab. Up to 6 simultaneous sessions.</p>
+        <div class="table-wrap"><table><thead><tr><th>Element</th><th>Detail</th></tr></thead><tbody>
+          <tr><td>Session tabs</td><td>Named: "Bash 1", "Claude Code", "Supabase", or custom names. Active tab highlighted. Click to switch.</td></tr>
+          <tr><td>[+ New Session] button</td><td>Opens session type picker: General Bash / Claude Code / Supabase / Custom. Creates new named ttyd session (new tmux window).</td></tr>
+          <tr><td>Session status dot</td><td>Green = active process running. Grey = idle. Red = disconnected.</td></tr>
+          <tr><td>Close session (×)</td><td>Kills the tmux window. Confirmation required.</td></tr>
+          <tr><td>Rename session</td><td>Double-click session name to rename inline.</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Session Persistence</span><h3>How Sessions Survive Reconnects</h3></div>
+      <div class="component-body">
+        <p>Each session is a named tmux window on the server. When Brian closes the browser or navigates away, the tmux session keeps running. When he returns, the session reconnects and he sees the full scrollback history.</p>
+        <ul>
+          <li>tmux session name: <code>friday-{sessionType}-{n}</code></li>
+          <li>Reconnect: ttyd connects to the existing tmux window by name</li>
+          <li>Scrollback: 10,000 lines per session</li>
+          <li>Session list persisted in Supabase: friday_terminal_sessions table (id, name, type, tmux_window, last_active)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="terminal-types">
+    <div class="section-header">
+      <h2>4.3 Session Types</h2>
+      <span class="os-ref">Terminal</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Default Name</th><th>What Launches</th><th>Working Directory</th></tr></thead>
+        <tbody>
+          <tr><td><strong>General Bash</strong></td><td>Bash</td><td>Plain bash shell — root@server</td><td>/opt/manageai</td></tr>
+          <tr><td><strong>Claude Code</strong></td><td>Claude Code</td><td>bash with ANTHROPIC_API_KEY pre-set, ready to run `claude`</td><td>/opt/manageai/build-api</td></tr>
+          <tr><td><strong>Supabase</strong></td><td>Supabase</td><td>psql connected to Supabase PostgreSQL via connection string</td><td>~</td></tr>
+          <tr><td><strong>PM2 Logs</strong></td><td>PM2 Logs</td><td>pm2 logs --lines 200 (live tail)</td><td>~</td></tr>
+          <tr><td><strong>Custom</strong></td><td>User-named</td><td>Plain bash — user runs what they need</td><td>/opt/manageai</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="terminal-claude-code">
+    <div class="section-header">
+      <h2>4.4 Claude Code Session</h2>
+      <span class="os-ref">Terminal</span>
+    </div>
+    <p>The Claude Code session is the most important terminal session type. Brian opens it when he needs Claude Code to run an autonomous build or make major changes to the server codebase.</p>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Launch Flow</span><h3>How Claude Code Session Starts</h3></div>
+      <div class="component-body">
+        <div class="loop-step"><div class="loop-step-num">1</div><div class="loop-step-content"><strong>Brian clicks [+ New Session] → selects "Claude Code"</strong><span>Dashboard creates new tmux window named "friday-claude-code-{n}". ttyd connects to it.</span></div></div>
+        <div class="loop-step"><div class="loop-step-num">2</div><div class="loop-step-content"><strong>Session opens with pre-set environment</strong><span>ANTHROPIC_API_KEY already set (from ecosystem.config.js). CWD: /opt/manageai/build-api. Prompt shows: root@ubuntu → claude</span></div></div>
+        <div class="loop-step"><div class="loop-step-num">3</div><div class="loop-step-content"><strong>Brian types: claude</strong><span>Claude Code launches. Brian can paste any prompt and Claude Code operates autonomously on the server.</span></div></div>
+        <div class="loop-step"><div class="loop-step-num">4</div><div class="loop-step-content"><strong>Session persists</strong><span>Brian can close the browser. The Claude Code session keeps running in tmux. He reconnects later and sees all output.</span></div></div>
+      </div>
+    </div>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Quick Launch</span><h3>Pre-Built Prompts for Claude Code</h3></div>
+      <div class="component-body">
+        <p>Quick action bar above the terminal when Claude Code session is active. Clicking a button pastes the prompt into the terminal (does not auto-run — Brian reviews and presses Enter).</p>
+        <div class="table-wrap"><table><thead><tr><th>Button</th><th>Pastes</th></tr></thead><tbody>
+          <tr><td>Dashboard Rebuild</td><td>FRIDAY dashboard completion instructions prompt (from FRIDAY_COMPLETION_INSTRUCTIONS.md)</td></tr>
+          <tr><td>Temporal Deploy</td><td>Temporal installation and migration prompt</td></tr>
+          <tr><td>Fix Server Bug</td><td>Template: "Read server.js. There is a bug with [describe]. Read the relevant section and fix it."</td></tr>
+          <tr><td>New n8n Workflow</td><td>Template: "Create a new n8n workflow that [describe]. Use the local n8n API at localhost:5678."</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="terminal-supabase">
+    <div class="section-header">
+      <h2>4.5 Supabase Session</h2>
+      <span class="os-ref">Terminal</span>
+    </div>
+    <p>Direct psql access to the Supabase PostgreSQL database. For schema inspection, complex queries, bulk operations, and debugging data issues that would be slow through the Cockpit.</p>
+
+    <div class="component-block">
+      <div class="component-header"><span class="component-num">Connection</span><h3>psql Connection Setup</h3></div>
+      <div class="component-body">
+        <p>The Supabase session type launches psql with the connection string pre-filled from ecosystem.config.js SUPABASE_DB_URL. Brian is connected immediately — no credential entry required.</p>
+        <div class="table-wrap"><table><thead><tr><th>Quick Button</th><th>Pastes into psql</th></tr></thead><tbody>
+          <tr><td>List Tables</td><td>\dt</td></tr>
+          <tr><td>Active Builds</td><td>SELECT ticket_id, client_name, status, progress_pct FROM friday_builds WHERE status NOT IN ('done','failed') ORDER BY created_at DESC;</td></tr>
+          <tr><td>Recent Activity</td><td>SELECT event_type, title, client_name, created_at FROM friday_activity_log ORDER BY created_at DESC LIMIT 20;</td></tr>
+          <tr><td>Open Issues</td><td>SELECT client_name, title, severity, proposed_fix FROM friday_issues WHERE fix_status='open' ORDER BY detected_at;</td></tr>
+          <tr><td>Agent Registry</td><td>SELECT agent_id, name, team, status FROM ai_team_members ORDER BY team, agent_id;</td></tr>
+        </tbody></table></div>
+        <div class="callout warning"><strong>Safety:</strong> Supabase session has read/write access via service key connection. Brian should not run destructive operations (DROP, TRUNCATE, DELETE without WHERE) from this terminal. The Cockpit's supabase_write tool has guardrails against this. The raw psql session does not.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PART 5: INTELLIGENCE & CHARLIE -->
+  <div class="part-divider" id="part5">
+    <span class="part-num">Part 5</span>
+    <h2>Intelligence &amp; Charlie</h2>
+    <span class="part-sub">Charlie integration · New account · Alignment · Dossiers · Briefs</span>
+  </div>
+
+  <div class="section" id="charlie-overview">
+    <div class="section-header">
+      <h2>5.1 Charlie Integration Overview</h2>
+      <span class="os-ref">Charlie</span>
+    </div>
+    <p>Charlie (CUST-001) and FRIDAY share this dashboard. Charlie's work — alignment sessions, customer dossiers, opportunity tracking, Requirements Briefs — all surfaces in the same interface alongside FRIDAY's builds. The handoff from Charlie to FRIDAY (Brief → Build) happens entirely within the dashboard.</p>
+    <div class="callout principle"><strong>The flow in the dashboard:</strong> New Account Intake (Dan fills out) → Charlie runs feasibility → Dossiers update with intelligence → Opportunities scored → Brief assembled → Dan approves Brief in dashboard → FRIDAY receives Brief automatically → Build starts → Delivered → Charlie updates Dossier with delivery. Everything visible, everything trackable, in one place.</div>
+    <div class="callout"><strong>Until Charlie is active:</strong> All Charlie sections show clean empty states with "Powered by Charlie — coming soon" messages. They never error. The tables exist. The queries are written. Charlie populating the tables activates the content automatically.</div>
+  </div>
+
+  <div class="section" id="charlie-intake">
+    <div class="section-header">
+      <h2>5.2 New Account Flow</h2>
+      <span class="os-ref">Charlie</span>
+    </div>
+    <p>Full spec in Section 2.4 (New Account Intake tab). Summary of what Charlie does after intake:</p>
+    <div class="loop-step"><div class="loop-step-num">1</div><div class="loop-step-content"><strong>Intake submitted</strong><span>friday_customers + customer_dossiers created. CharlieAlignmentWorkflow starts in Temporal.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">2</div><div class="loop-step-content"><strong>Feasibility Gate runs</strong><span>5 questions checked automatically. Go/Blocker/Needs Info per opportunity. Results posted to Dan via Teams AND visible in Client Detail under "Alignment Status".</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">3</div><div class="loop-step-content"><strong>Outcome Roadmap + AI Workforce Vision drafted</strong><span>Now/Next/Later structure created. Visible in Dossiers tab and Client Detail right column.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">4</div><div class="loop-step-content"><strong>Opportunities appear in Opportunity Tracker</strong><span>opportunity_tracker rows created with initial Priority Scores. Visible in Opportunities tab.</span></div></div>
+  </div>
+
+  <div class="section" id="charlie-alignment">
+    <div class="section-header">
+      <h2>5.3 Alignment Sessions</h2>
+      <span class="os-ref">Charlie</span>
+    </div>
+    <p>Each time Dan meets with a customer or team, the transcript is ingested by Charlie and the alignment session is reflected in the dashboard.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dashboard Element</th><th>Updates After Session</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td>Customer Dossier (Client Detail right column)</td><td>Stakeholders, systems, open decisions updated</td><td>customer_dossiers</td></tr>
+          <tr><td>Opportunities tab</td><td>New signals flagged, priority scores updated</td><td>opportunity_tracker</td></tr>
+          <tr><td>Transcripts tab</td><td>New transcript card with extracted facts + action items</td><td>knowledge_documents + charlie_facts</td></tr>
+          <tr><td>Activity Feed</td><td>"Charlie ingested transcript — {client}" event</td><td>friday_activity_log</td></tr>
+          <tr><td>Client Detail engagement timeline</td><td>New session entry with date and summary</td><td>customer_dossiers.engagement_timeline</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="charlie-dossier">
+    <div class="section-header">
+      <h2>5.4 Customer Dossiers</h2>
+      <span class="os-ref">Charlie · Tab</span>
+    </div>
+    <div class="shared-banner">🔗 Shared component — Charlie writes, FRIDAY reads for build context</div>
+    <p>Per-client intelligent memory. Source: customer_dossiers table. Placeholder until Charlie active.</p>
+    <h4>Dossier Page — Per Client (client selector at top)</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Section</th><th>Source Field</th><th>Content</th></tr></thead>
+        <tbody>
+          <tr><td><strong>AI Workforce Vision</strong></td><td>ai_workforce_vision JSONB</td><td>Now/Next/Later cards — what the client is building toward</td></tr>
+          <tr><td><strong>Stakeholders</strong></td><td>stakeholders JSONB</td><td>Name, title, role, communication preference per person</td></tr>
+          <tr><td><strong>Systems Inventory</strong></td><td>systems JSONB</td><td>All systems mentioned across engagement (Procore, Sage, etc)</td></tr>
+          <tr><td><strong>Open Decisions</strong></td><td>open_decisions JSONB</td><td>Unresolved questions — owner, SLA, status</td></tr>
+          <tr><td><strong>Engagement Timeline</strong></td><td>engagement_timeline JSONB</td><td>All key milestones, sessions, handoffs chronologically</td></tr>
+          <tr><td><strong>Process Map Links</strong></td><td>Derived from knowledge_documents</td><td>Links to MAI Process Maps produced for this client</td></tr>
+          <tr><td><strong>Brief History</strong></td><td>prototype_briefs table</td><td>All Prototype Briefs and Requirements Briefs — status, date, link</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="charlie-opportunities">
+    <div class="section-header">
+      <h2>5.5 Opportunity Tracker</h2>
+      <span class="os-ref">Charlie · Tab</span>
+    </div>
+    <div class="shared-banner">🔗 Shared component — feeds FRIDAY build pipeline when opportunity → Brief → Build</div>
+    <p>Source: opportunity_tracker table. Kanban board view. Placeholder until Charlie active.</p>
+    <h4>Kanban Columns</h4>
+    <p>Signal → Opportunity → In Alignment → Brief Ready → In Build → Delivered</p>
+    <h4>Each Card Shows</h4>
+    <ul>
+      <li>Client name + opportunity title</li>
+      <li>Priority Score (colored: ≥75 green, ≥50 amber, &lt;50 grey)</li>
+      <li>Theme label</li>
+      <li>Last activity date</li>
+      <li>[View Dossier] [View Brief] (if brief exists) [Trigger Build] (if brief approved)</li>
+    </ul>
+    <p>Filter by client, score range, theme, status. Sort by priority score descending.</p>
+  </div>
+
+  <div class="section" id="charlie-briefs">
+    <div class="section-header">
+      <h2>5.6 Requirements Briefs</h2>
+      <span class="os-ref">Charlie · Tab — The FRIDAY Handoff Point</span>
+    </div>
+    <div class="shared-banner">🔗 Critical shared component — Brief approval fires FRIDAY build automatically</div>
+    <p>The Briefs tab is the most important connection point between Charlie and FRIDAY. When Dan approves a Brief here, FRIDAY's build pipeline starts automatically.</p>
+    <h4>Brief List</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Status</th><th>Badge</th><th>Available Actions</th></tr></thead>
+        <tbody>
+          <tr><td>Draft</td><td>Grey</td><td>[Edit] [Preview]</td></tr>
+          <tr><td>Dan Review</td><td>Amber "Needs Approval"</td><td>[Review Full Brief] [✅ Approve + Send to FRIDAY] [✏️ Request Changes] [Reject]</td></tr>
+          <tr><td>Sent to FRIDAY</td><td>Blue "Building"</td><td>[View Build Status]</td></tr>
+          <tr><td>Delivered</td><td>Green</td><td>[View Skillset] [View Brief]</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>[Approve + Send to FRIDAY] Action</h4>
+    <div class="loop-step"><div class="loop-step-num">1</div><div class="loop-step-content"><strong>Dan clicks Approve + Send to FRIDAY</strong><span>Confirmation: "This will send the Requirements Brief to FRIDAY and start the build. Brief must be complete (all 7 sections)."</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">2</div><div class="loop-step-content"><strong>POST /api/charlie/brief/:id/approve</strong><span>Charlie server validates all 7 sections are Complete. If any Missing: returns gap list, does not send.</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">3</div><div class="loop-step-content"><strong>FRIDAY receives Brief via POST /api/build/brief</strong><span>FridayBuildWorkflow starts in Temporal. Brief status updates to "Sent to FRIDAY → Building".</span></div></div>
+    <div class="loop-step"><div class="loop-step-num">4</div><div class="loop-step-content"><strong>Build Queue tab shows the new workflow</strong><span>Brief card in Briefs tab shows "Building..." with link to the active build in Build Queue.</span></div></div>
+    <div class="callout rule"><strong>Hard rule:</strong> The [Approve + Send to FRIDAY] button does NOT appear if any Brief section has confidence = Missing. The UI validates this client-side AND the server validates before firing. FRIDAY never receives an incomplete Brief.</div>
+  </div>
+
+  <div class="section" id="charlie-transcripts">
+    <div class="section-header">
+      <h2>5.7 Transcript Library</h2>
+      <span class="os-ref">Charlie · Tab</span>
+    </div>
+    <p>All ingested content from Teams transcripts, emails, and uploaded documents. Searchable. Source: knowledge_documents table. Placeholder until Charlie active.</p>
+    <h4>List View</h4>
+    <ul>
+      <li>Search bar — full text search across content field</li>
+      <li>Filter by: client, source type (transcript/email/file), tag, date range</li>
+      <li>Each row: date · client · title · duration (if transcript) · tags · 2-line summary</li>
+      <li>Tags: opportunity flagged (amber) · adoption review (green) · action items (blue)</li>
+    </ul>
+    <h4>Transcript Detail (click to open)</h4>
+    <ul>
+      <li>Full content (scrollable)</li>
+      <li>Extracted facts from charlie_facts table — grouped by fact_type</li>
+      <li>Action items from charlie_action_items — with owner + due date + status</li>
+      <li>Opportunities flagged — links to opportunity_tracker cards</li>
+    </ul>
+  </div>
+
+  <!-- PART 6: OPERATIONS TABS -->
+  <div class="part-divider" id="part6">
+    <span class="part-num">Part 6</span>
+    <h2>Operations Tabs</h2>
+    <span class="part-sub">Approvals · Issue Feed · Platform · Placeholders</span>
+  </div>
+
+  <div class="section" id="tab-approvals">
+    <div class="section-header">
+      <h2>6.1 Approvals Tab</h2>
+      <span class="os-ref">Tab — Active</span>
+    </div>
+    <p>Dedicated tab for all pending approvals across both FRIDAY and Charlie. Same card components as Dashboard approval queue — this tab is the full list, the Dashboard shows only the top 3 most urgent.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Approval Type</th><th>Color</th><th>Comes From</th><th>Goes To</th></tr></thead>
+        <tbody>
+          <tr><td><strong>FRIDAY Build Approval</strong></td><td>Amber</td><td>Temporal HumanApprovalGateActivity</td><td>POST /api/build/:id/approve (Temporal signal)</td></tr>
+          <tr><td><strong>Charlie Brief Approval</strong></td><td>Blue</td><td>Charlie CharlieAlignmentWorkflow</td><td>POST /api/charlie/brief/:id/approve (fires to FRIDAY)</td></tr>
+          <tr><td><strong>FRIDAY Fix Approval</strong></td><td>Purple</td><td>Issue detection — proposed fix ready</td><td>POST /api/issues/:id/apply-fix</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Tabs at top: [All] [Builds] [Briefs] [Fixes]. Count badge per tab showing pending count. Sorted by time waiting (oldest first).</p>
+  </div>
+
+  <div class="section" id="tab-issue-feed">
+    <div class="section-header">
+      <h2>6.2 Issue Feed</h2>
+      <span class="os-ref">Tab — Active</span>
+    </div>
+    <p>All platform issues detected by FRIDAY monitoring. Source: friday_issues table. Real data from WF-10 and Cockpit diagnostics.</p>
+    <h4>Issue Card</h4>
+    <ul>
+      <li>Severity dot: 🔴 Critical / 🟡 Warning / 🔵 Info</li>
+      <li>Client name + workflow name</li>
+      <li>Issue description (plain language)</li>
+      <li>Time detected + time open</li>
+      <li>FRIDAY's proposed fix (1–2 sentences)</li>
+      <li>[View Details] [Apply Fix] [Dismiss]</li>
+    </ul>
+    <h4>Apply Fix Flow</h4>
+    <p>[Apply Fix] → opens Cockpit pre-loaded with: this client selected, this issue's context injected, FRIDAY's proposed fix as the first message. Brian can review, edit, and execute from Cockpit with full memory and tool access.</p>
+    <p>Filter tabs: [Open] [Applied] [Dismissed]. Severity filter. Client filter.</p>
+  </div>
+
+  <div class="section" id="tab-platform">
+    <div class="section-header">
+      <h2>6.3 Platform Health</h2>
+      <span class="os-ref">Tab — Active</span>
+    </div>
+    <p>Real-time infrastructure health. Source: GET /api/health. Refreshes every 30 seconds.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Panel</th><th>Metrics Shown</th><th>Source</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Server</strong></td><td>CPU %, memory %, disk %, uptime, IP</td><td>/api/health → server stats</td></tr>
+          <tr><td><strong>PM2 Processes</strong></td><td>manageai-build-api · n8n · ttyd · friday-worker — each with status, uptime, restarts, memory</td><td>/api/health → pm2 list</td></tr>
+          <tr><td><strong>Temporal</strong></td><td>Server status, running workflows count, task queue depth</td><td>/api/health → Temporal client</td></tr>
+          <tr><td><strong>n8n</strong></td><td>Local instance status, active workflows count, executions today, error rate</td><td>/api/health → n8n local API</td></tr>
+          <tr><td><strong>Supabase</strong></td><td>Connection status, query latency, row counts for key tables</td><td>/api/health → Supabase ping</td></tr>
+          <tr><td><strong>Vercel</strong></td><td>Last deployment timestamp, last commit SHA, deploy status</td><td>/api/health → GitHub API</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Status banner at top: all green = "All systems healthy" (green stripe). Any red = "Issues detected" (red banner with count).</p>
+  </div>
+
+  <div class="section" id="tab-placeholders">
+    <div class="section-header">
+      <h2>6.4 Placeholder Tabs</h2>
+      <span class="os-ref">Tab — Placeholder</span>
+    </div>
+    <p>Each placeholder shows: icon (64px) · tab name · one-sentence description · "Powered by {system}" in dim text. Never errors. Never makes network requests. Static HTML only.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tab</th><th>Message</th><th>Powered By</th><th>Wires When</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Pipeline</strong></td><td>Full business pipeline performance across prospect → client → build → delivered</td><td>OPS-001</td><td>OPS-001 active</td></tr>
+          <tr><td><strong>Agent Monitor</strong></td><td>Live 4-agent swarm progress with per-agent logs during builds</td><td>Temporal + /api/status</td><td>Next sprint</td></tr>
+          <tr><td><strong>All Agents</strong></td><td>Full ManageAI OS agent map — all 16 agents, health scores, trust levels</td><td>ai_team_members table</td><td>AITM framework sprint</td></tr>
+          <tr><td><strong>Agent Health</strong></td><td>Real-time health and success rates across all agents in the OS</td><td>ai_team_members + activity log</td><td>AITM framework sprint</td></tr>
+          <tr><td><strong>Settings</strong></td><td>System configuration — API keys, build thresholds, team management, notifications</td><td>Supabase + ecosystem.config.js</td><td>Settings sprint</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PART 7: DATA & API -->
+  <div class="part-divider" id="part7">
+    <span class="part-num">Part 7</span>
+    <h2>Data &amp; API</h2>
+    <span class="part-sub">Sources · API calls · Vercel routes · Polling</span>
+  </div>
+
+  <div class="section" id="data-sources">
+    <div class="section-header">
+      <h2>7.1 Data Sources</h2>
+      <span class="os-ref">Data</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Table / Source</th><th>Key Filter</th><th>System</th></tr></thead>
+        <tbody>
+          <tr><td>Active builds</td><td>friday_builds</td><td>status IN ('building','queued')</td><td>FRIDAY</td></tr>
+          <tr><td>Awaiting approval builds</td><td>friday_builds</td><td>review_status='awaiting_approval'</td><td>FRIDAY</td></tr>
+          <tr><td>All clients</td><td>friday_customers</td><td>order=name.asc</td><td>Shared</td></tr>
+          <tr><td>Client skillsets</td><td>friday_skillsets</td><td>customer_id=eq.{id}</td><td>FRIDAY</td></tr>
+          <tr><td>Build scenarios</td><td>build_scenarios</td><td>build_id=eq.{id}</td><td>FRIDAY</td></tr>
+          <tr><td>Credentials</td><td>build_credentials</td><td>build_id=eq.{id}</td><td>FRIDAY</td></tr>
+          <tr><td>Change log</td><td>workflow_changes</td><td>build_id=eq.{id}&order=created_at.desc</td><td>FRIDAY</td></tr>
+          <tr><td>Activity feed</td><td>friday_activity_log</td><td>order=created_at.desc&limit=50</td><td>Shared</td></tr>
+          <tr><td>Issues</td><td>friday_issues</td><td>fix_status='open'</td><td>FRIDAY</td></tr>
+          <tr><td>Cockpit sessions</td><td>cockpit_chats</td><td>customer_id + skillset_id filter</td><td>FRIDAY</td></tr>
+          <tr><td>Customer dossier</td><td>customer_dossiers</td><td>customer_id=eq.{id}</td><td>Charlie</td></tr>
+          <tr><td>Opportunities</td><td>opportunity_tracker</td><td>customer_id=eq.{id}&order=priority_score.desc</td><td>Charlie</td></tr>
+          <tr><td>Requirements Briefs</td><td>prototype_briefs</td><td>customer_id=eq.{id}&order=created_at.desc</td><td>Charlie</td></tr>
+          <tr><td>Transcripts + intel</td><td>knowledge_documents</td><td>customer_id=eq.{id}&order=created_at.desc</td><td>Charlie</td></tr>
+          <tr><td>Extracted facts</td><td>charlie_facts</td><td>customer_id=eq.{id}</td><td>Charlie</td></tr>
+          <tr><td>Action items</td><td>charlie_action_items</td><td>customer_id=eq.{id}&status='open'</td><td>Charlie</td></tr>
+          <tr><td>Terminal sessions</td><td>friday_terminal_sessions</td><td>order=last_active.desc</td><td>FRIDAY</td></tr>
+          <tr><td>Agent registry</td><td>ai_team_members</td><td>order=team.asc</td><td>Shared</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout rule"><strong>New Supabase table required — friday_terminal_sessions:</strong>
+    id UUID, name TEXT, session_type TEXT, tmux_window TEXT, status TEXT, last_active TIMESTAMPTZ, created_at TIMESTAMPTZ. Stores the list of named terminal sessions so they persist across browser reloads.</div>
+  </div>
+
+  <div class="section" id="api-calls">
+    <div class="section-header">
+      <h2>7.2 API Calls From Dashboard</h2>
+      <span class="os-ref">Data</span>
+    </div>
+    <div class="callout rule"><strong>Content-Type: application/json — always.</strong> All API calls send this header. text/plain causes n8n parsing failures. No exceptions.</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Call</th><th>Method</th><th>Endpoint</th><th>Trigger</th></tr></thead>
+        <tbody>
+          <tr><td>Submit build</td><td>POST</td><td>/api/build</td><td>New Build submit</td></tr>
+          <tr><td>Submit Brief</td><td>POST</td><td>/api/build/brief</td><td>Charlie brief approval</td></tr>
+          <tr><td>Q&A answers</td><td>POST</td><td>/api/answer</td><td>Q&A form</td></tr>
+          <tr><td>Approve build</td><td>POST</td><td>/api/build/:id/approve</td><td>Approve button</td></tr>
+          <tr><td>Request changes</td><td>POST</td><td>/api/build/:id/request-changes</td><td>Request Changes button</td></tr>
+          <tr><td>Cancel build</td><td>POST</td><td>/api/build/:id/cancel</td><td>Reject button</td></tr>
+          <tr><td>Send context signal</td><td>POST</td><td>/api/build/:id/context</td><td>Cockpit charlie-context-ready</td></tr>
+          <tr><td>Build status</td><td>GET</td><td>/api/status/:ticketId</td><td>Build Queue polling (10s)</td></tr>
+          <tr><td>Cockpit message</td><td>POST</td><td>/api/cockpit</td><td>Send button (SSE stream)</td></tr>
+          <tr><td>Summarize session</td><td>POST</td><td>/api/cockpit/summarize</td><td>Session switch (background)</td></tr>
+          <tr><td>n8n audit</td><td>GET</td><td>/api/n8n-audit</td><td>Cockpit quick action</td></tr>
+          <tr><td>Activity feed</td><td>GET</td><td>/api/activity</td><td>Dashboard home (60s)</td></tr>
+          <tr><td>Platform health</td><td>GET</td><td>/api/health</td><td>Platform tab (30s)</td></tr>
+          <tr><td>Issues list</td><td>GET</td><td>/api/issues</td><td>Issue Feed tab (60s)</td></tr>
+          <tr><td>Agent registry</td><td>GET</td><td>/api/agents</td><td>All Agents placeholder</td></tr>
+          <tr><td>Charlie intake</td><td>POST</td><td>/api/charlie/intake</td><td>New Account submit</td></tr>
+          <tr><td>Approve brief</td><td>POST</td><td>/api/charlie/brief/:id/approve</td><td>Approve Brief button</td></tr>
+          <tr><td>Brief changes</td><td>POST</td><td>/api/charlie/brief/:id/request-changes</td><td>Request Changes on brief</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="vercel-routes">
+    <div class="section-header">
+      <h2>7.3 Vercel Proxy Routes</h2>
+      <span class="os-ref">Data</span>
+    </div>
+    <div class="callout warning"><strong>Cockpit proxy MUST be Edge runtime for SSE streaming.</strong> All other routes can be Node runtime.</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>File</th><th>Route</th><th>Proxies To</th><th>Runtime</th></tr></thead>
+        <tbody>
+          <tr><td>api/cockpit.js</td><td>/api/cockpit</td><td>:3000/api/cockpit</td><td><strong>Edge</strong></td></tr>
+          <tr><td>api/build.js</td><td>/api/build</td><td>:3000/api/build</td><td>Node</td></tr>
+          <tr><td>api/answer.js</td><td>/api/answer</td><td>:3000/api/answer</td><td>Node</td></tr>
+          <tr><td>api/n8n-audit.js</td><td>/api/n8n-audit</td><td>:3000/api/cockpit/n8n-audit</td><td>Node</td></tr>
+          <tr><td>api/activity.js</td><td>/api/activity</td><td>:3000/api/activity</td><td>Node</td></tr>
+          <tr><td>api/health.js</td><td>/api/health</td><td>:3000/api/health</td><td>Node</td></tr>
+          <tr><td>api/issues.js</td><td>/api/issues</td><td>:3000/api/issues</td><td>Node</td></tr>
+          <tr><td>api/agents.js</td><td>/api/agents</td><td>:3000/api/agents</td><td>Node</td></tr>
+          <tr><td>api/build-action.js</td><td>/api/build/:id/:action</td><td>:3000/api/build/:id/:action</td><td>Node</td></tr>
+          <tr><td>api/status/[id].js</td><td>/api/status/:id</td><td>:3000/api/status/:id</td><td>Node</td></tr>
+          <tr><td>api/charlie/intake.js</td><td>/api/charlie/intake</td><td>:3001/api/charlie/intake</td><td>Node</td></tr>
+          <tr><td>api/charlie/brief-action.js</td><td>/api/charlie/brief/:id/:action</td><td>:3001/api/charlie/brief/:id/:action</td><td>Node</td></tr>
+          <tr><td>api/cockpit/summarize.js</td><td>/api/cockpit/summarize</td><td>:3000/api/cockpit/summarize</td><td>Node</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="realtime">
+    <div class="section-header">
+      <h2>7.4 Real-Time &amp; Polling</h2>
+      <span class="os-ref">Data</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Data</th><th>Interval</th><th>Method</th><th>Stops When</th></tr></thead>
+        <tbody>
+          <tr><td>Build Queue (Temporal)</td><td>10 seconds</td><td>GET /api/status/:ticketId per active build</td><td>Build reaches done/failed</td></tr>
+          <tr><td>Approval Queue</td><td>15 seconds</td><td>Supabase: friday_builds review_status=awaiting_approval + prototype_briefs status=dan_review</td><td>Always while dashboard visible</td></tr>
+          <tr><td>Activity Feed</td><td>60 seconds</td><td>GET /api/activity</td><td>Always while Dashboard visible</td></tr>
+          <tr><td>Platform Health</td><td>30 seconds</td><td>GET /api/health</td><td>Only while Platform tab open</td></tr>
+          <tr><td>Skillset page (when open)</td><td>30 seconds</td><td>Supabase: workflow_changes, friday_activity_log for this skillset</td><td>Only while skillset page open</td></tr>
+          <tr><td>Cockpit streaming</td><td>SSE push</td><td>EventSource via Edge proxy</td><td>done event received</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><strong>Visibility optimization:</strong> All polling pauses when document.visibilityState === 'hidden'. Resumes immediately when tab becomes visible. Prevents unnecessary Supabase and API load.</div>
+  </div>
+
+  <!-- PART 8: CONSTRAINTS & CRITERIA -->
+  <div class="part-divider" id="part8">
+    <span class="part-num">Part 8</span>
+    <h2>Constraints &amp; Criteria</h2>
+    <span class="part-sub">Technical · Scope · Acceptance · Build Plan</span>
+  </div>
+
+  <div class="section" id="technical-constraints">
+    <div class="section-header">
+      <h2>8.1 Technical Constraints</h2>
+      <span class="os-ref">Constraints</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Constraint</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Single file</strong></td><td>index.html only. /api/ folder for Vercel proxies.</td></tr>
+          <tr><td><strong>No framework</strong></td><td>Vanilla HTML/CSS/JS. No React, Vue, build tools.</td></tr>
+          <tr><td><strong>Content-Type</strong></td><td>All API calls: application/json. Never text/plain.</td></tr>
+          <tr><td><strong>HTTPS only</strong></td><td>All calls through Vercel proxy. Never direct HTTP to server IP.</td></tr>
+          <tr><td><strong>Auth required</strong></td><td>All routes protected. Supabase Auth session.</td></tr>
+          <tr><td><strong>No new tables</strong></td><td>Only addition allowed: friday_terminal_sessions. All others already exist.</td></tr>
+          <tr><td><strong>Cockpit proxy</strong></td><td>Edge runtime only for /api/cockpit. Node runtime for all others.</td></tr>
+          <tr><td><strong>Do not touch</strong></td><td>Login screen, existing mode-tabs nav, existing working functionality.</td></tr>
+          <tr><td><strong>Responsive floor</strong></td><td>Desktop-first. min-width 1024px.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section" id="scope-fence">
+    <div class="section-header">
+      <h2>8.2 Scope Fence</h2>
+      <span class="os-ref">Constraints</span>
+    </div>
+    <p>Explicitly out of scope for any build session against these requirements:</p>
+    <ul>
+      <li>Mobile or tablet responsive layout</li>
+      <li>Customer-facing views or white-labeled versions</li>
+      <li>Real-time WebSocket connections (polling only)</li>
+      <li>Offline or PWA support</li>
+      <li>Multi-tenant dashboard</li>
+      <li>Payment or billing UI</li>
+      <li>Building Charlie's backend pipeline (dashboard reads Charlie data — does not build Charlie)</li>
+      <li>Building Temporal workflows (dashboard wires to existing endpoints — does not build Temporal)</li>
+      <li>Schema changes beyond friday_terminal_sessions</li>
+      <li>UI design refinements (typography polish, animation) — that is Chad/DESIGN-001's scope</li>
+    </ul>
+  </div>
+
+  <div class="section" id="acceptance-criteria">
+    <div class="section-header">
+      <h2>8.3 Acceptance Criteria</h2>
+      <span class="os-ref">Constraints</span>
+    </div>
+    <h4>Authentication & Navigation</h4>
+    <ul class="checklist">
+      <li>Login works. All tabs require auth. Session persists across refresh.</li>
+      <li>All 10 placeholder tabs show clean coming-soon state — zero JS errors, zero failed requests.</li>
+      <li>Sidebar highlights active tab correctly on all navigation.</li>
+    </ul>
+    <h4>Unified Approval Queue</h4>
+    <ul class="checklist">
+      <li>FRIDAY build approvals show when review_status=awaiting_approval</li>
+      <li>Charlie brief approvals show when prototype_briefs.status=dan_review (once Charlie active)</li>
+      <li>Approve button sends Temporal signal and removes card immediately</li>
+      <li>Request Changes shows textarea, POSTs notes, removes card</li>
+      <li>Reject shows confirmation, terminates workflow</li>
+    </ul>
+    <h4>Cockpit — Memory & Context</h4>
+    <ul class="checklist">
+      <li>Client + skillset dropdowns load real data</li>
+      <li>Selecting skillset injects memory: previous session summaries appear in system prompt context</li>
+      <li>Opening Cockpit via [🤖 Build Agent] from Skillset Detail pre-loads correct context</li>
+      <li>Session saves to cockpit_chats with customer_id + skillset_id</li>
+      <li>Auto-summarize fires on session switch, summary stored</li>
+      <li>Next session for same skillset: FRIDAY references previous work in responses</li>
+    </ul>
+    <h4>Cockpit — Chat Quality</h4>
+    <ul class="checklist">
+      <li>Reply text streams word by word — empty box bug resolved</li>
+      <li>Tool indicators appear before reply text</li>
+      <li>Tool result blocks collapse/expand correctly</li>
+      <li>write_file shows diff view with Apply/Cancel before writing</li>
+      <li>Destructive actions show approval gate card</li>
+      <li>Code blocks have syntax highlighting and copy button</li>
+      <li>@ file mention reads file and adds to right panel scope</li>
+    </ul>
+    <h4>Cockpit — Skillset Update Loop</h4>
+    <ul class="checklist">
+      <li>write_file + git_action from Cockpit creates workflow_changes entry on skillset</li>
+      <li>Skillset Detail Change Log auto-updates within 30 seconds of Cockpit action</li>
+      <li>logActivity() called for every Cockpit tool execution with skillset context</li>
+      <li>Activity Feed shows Cockpit actions with client name</li>
+    </ul>
+    <h4>Terminal — Multi-Session</h4>
+    <ul class="checklist">
+      <li>[+ New Session] opens session type picker</li>
+      <li>Multiple sessions open simultaneously — tab bar shows all</li>
+      <li>Switching tabs switches terminal session</li>
+      <li>Sessions persist: close browser, reopen, sessions still there in tmux</li>
+      <li>Claude Code session: ANTHROPIC_API_KEY pre-set, CWD /opt/manageai/build-api, `claude` runs immediately</li>
+      <li>Supabase session: psql connected immediately, quick-launch buttons work</li>
+      <li>PM2 Logs session: pm2 logs streaming live</li>
+      <li>Session names editable by double-clicking</li>
+      <li>Sessions persist to friday_terminal_sessions table</li>
+    </ul>
+    <h4>Skillset Detail</h4>
+    <ul class="checklist">
+      <li>Two-column layout renders correctly</li>
+      <li>All 4 main column sections show real data or empty state</li>
+      <li>All 4 sidebar cards show real data</li>
+      <li>Open ↗ links open real SharePoint URLs in new tab</li>
+      <li>Change Log auto-updates when Cockpit makes changes</li>
+      <li>Customer Intelligence shows empty state until Charlie active</li>
+    </ul>
+    <h4>New Account Intake (Charlie)</h4>
+    <ul class="checklist">
+      <li>Form submits to /api/charlie/intake</li>
+      <li>friday_customers record created</li>
+      <li>customer_dossiers record created</li>
+      <li>Redirects to Client Detail showing new client</li>
+      <li>Charlie alignment status shows "Feasibility check running..."</li>
+    </ul>
+    <h4>Charlie Briefs Tab</h4>
+    <ul class="checklist">
+      <li>Briefs list loads from prototype_briefs (empty until Charlie active)</li>
+      <li>Approve + Send to FRIDAY button fires POST /api/charlie/brief/:id/approve</li>
+      <li>Brief with any Missing section shows disabled Approve button with error message</li>
+      <li>After approval: Build Queue shows new Temporal workflow</li>
+    </ul>
+    <h4>General</h4>
+    <ul class="checklist">
+      <li>Zero console errors on any tab</li>
+      <li>Zero failed network requests on normal navigation</li>
+      <li>All polling pauses when browser tab is hidden</li>
+      <li>Push to main → Vercel deploys within 90 seconds</li>
+    </ul>
+  </div>
+
+  <div class="section" id="build-plan">
+    <div class="section-header">
+      <h2>8.4 Build Plan</h2>
+      <span class="os-ref">Build Plan</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Session</th><th>What Gets Built</th><th>Est. Time</th><th>Run From</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Session 1</strong></td><td>Fix streaming reply text · Context selector + memory injection in Cockpit · Diff view for write_file · Right panel (context + files) · Skillset update loop (logActivity wiring) · Approval Queue (FRIDAY builds) · Activity Feed unified · Multi-session Terminal (session bar + tmux integration) · Claude Code session type · Supabase session type · Commit + deploy</td><td>8 hours</td><td>Local Mac + Server — Claude Code</td></tr>
+          <tr><td><strong>Session 2</strong></td><td>Skillset page full rebuild (10 phases) · Build Queue with Temporal steps · Platform Health tab (real data) · Issue Feed tab (real data) · Client Detail unified view · New Account Intake form · All placeholder tabs · Client health dots</td><td>6 hours</td><td>Local Mac — Claude Code</td></tr>
+          <tr><td><strong>Session 3</strong></td><td>Charlie sections: Dossiers tab · Opportunities Kanban · Briefs tab + approval flow · Transcripts tab · Client Detail Charlie right column · Brief approval → FRIDAY build trigger</td><td>4 hours</td><td>Local Mac — Claude Code (after Charlie server exists)</td></tr>
+          <tr><td><strong>Ongoing</strong></td><td>Design refinements — Chad/DESIGN-001. Agent Monitor once swarm tracking built. All Agents tab once AITM framework built.</td><td>Continuous</td><td>Design team</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout principle"><strong>Session 1 prerequisites:</strong> (1) Temporal deployed on server, (2) approval endpoints live (/api/build/:id/approve etc), (3) friday_terminal_sessions table created in Supabase, (4) tmux installed on server.</div>
+    <div class="callout"><strong>Judgment call rules:</strong> (1) Simpler approach wins when output is identical. (2) Supabase null → empty state, never crash. (3) Missing SharePoint URL → hide Open button, never broken link. (4) Temporal endpoint error → show "—", never block page. (5) Placeholder tabs → static HTML only, never attempt fetch. (6) Log all autonomous decisions to ~/Desktop/friday/DECISIONS.md.</div>
+  </div>
+
+  <div class="doc-footer">
+    © 2026 Manage AI. All rights reserved. Confidential. Internal use only.<br>
+    ManageAI Dashboard Requirements · v2.0 · March 2026
+  </div>
+
+</main>
+</div>
+
+<script>
+const links = document.querySelectorAll('.sidebar-link');
+const sections = document.querySelectorAll('.section, .part-divider');
+function setActive() {
+  let current = '';
+  sections.forEach(s => { if(s.getBoundingClientRect().top <= 100) current = s.id; });
+  links.forEach(l => {
+    l.classList.remove('active');
+    if(l.getAttribute('href') === '#' + current) l.classList.add('active');
+  });
+}
+window.addEventListener('scroll', setActive);
+setActive();
+</script>
+</body>
+</html>
